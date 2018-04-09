@@ -1,0 +1,27 @@
+# IJ
+#
+.idea
+.gradle
+local.properties
+
+# node.js
+#
+node_modules/
+npm-debug.log
+
+# OS
+.DS_Store
+
+# transpiled code
+dist/
+
+# Logs
+run/logs/
+*.log
+
+resources/
+
+# production
+build
+
+package-lock.json
