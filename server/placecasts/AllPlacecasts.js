@@ -13,13 +13,9 @@ export default class AllPlacecasts {
     return knex("placecasts").insert(placecast, ['id'])
       .then(placecast => {
         const placecastId = placecast[0]
+        this.log.info('Successfully created placecast: ' + placecastId.id)
         return placecastId
       })
-      .catch(error => {
-        this.log.info(error)
-        return error
-      })
   }
-
 
 }

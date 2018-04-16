@@ -5,10 +5,7 @@ import AllPlacecasts from './AllPlacecasts'
 export default class PlacecastsModule extends Module {
   constructor ({prefix, log}) {
     super()
-
-
     const allPlacecasts = new AllPlacecasts({log})
-
     this.placecastsResource = new PlacecastsResource({
       prefix, log, allPlacecasts
     })
