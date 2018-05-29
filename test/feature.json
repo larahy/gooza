@@ -1,0 +1,15 @@
+{
+  "type": "Feature",
+  "properties": {
+    "title": "Millennium Park",
+    "description": "A downtown park known for its art installations and unique architecture"
+  },
+  "geometry": {
+    "coordinates": [
+      -87.622554,
+      41.882534
+    ],
+    "type": "Point"
+  },
+  "id": "2ae19f7ffe771034dc85e613acc8cf76"
+}

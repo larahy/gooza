@@ -15,6 +15,7 @@
   "author": "Lara Inskip",
   "license": "ISC",
   "dependencies": {
+    "aws-sdk": "^2.247.1",
     "axios": "^0.17.1",
     "babel-cli": "^6.26.0",
     "babel-polyfill": "^6.26.0",
@@ -23,6 +24,8 @@
     "bluebird": "^3.5.1",
     "halson": "^3.0.0",
     "knex": "^0.14.5",
+    "mapbox": "^1.0.0-beta10",
+    "mapbox-gl": "^0.45.0",
     "pg": "^7.4.1",
     "restify": "^7.1.0",
     "restify-cors-middleware": "^1.1.0"

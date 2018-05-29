@@ -25,3 +25,5 @@ resources/
 build
 
 package-lock.json
+
+*.sh
