@@ -15,9 +15,7 @@ const newPlacecastJson = {
   "which has given Twinings the honor of providing tea to the royal family ever since. ",
   lat: 51.5133,
   long: -0.1128,
-  address: "216 Strand\n" +
-  "London, England\n" +
-  "United Kingdom"
+  s3_audio_file: "twinings_tea.mp3"
 };
 
 describe("routes: placecasts", () => {

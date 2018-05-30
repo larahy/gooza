@@ -24,6 +24,7 @@
     "bluebird": "^3.5.1",
     "halson": "^3.0.0",
     "knex": "^0.14.5",
+    "knex-postgis": "^0.6.0",
     "mapbox": "^1.0.0-beta10",
     "mapbox-gl": "^0.45.0",
     "pg": "^7.4.1",

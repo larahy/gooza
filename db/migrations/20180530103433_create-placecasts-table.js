@@ -3,9 +3,8 @@ exports.up = function(knex, Promise) {
     table.increments();
     table.string('title').notNullable().unique();
     table.text('subtitle');
-    table.decimal('lat', [9], [7]).notNull().defaultTo(0.0000000);
-    table.decimal('long', [10], [7]).notNull().defaultTo(0.0000000);
-    table.text('address');
+    table.text('s3_audio_filename').unique();
+    table.specificType('geom', 'geometry(Point,4326)')
   });
 };
 
