@@ -10,7 +10,7 @@ export default class AllPlacecasts {
     this.log = log
   }
 
-  create ({placecast}) {
+  add ({placecast}) {
     this.log.info('Creating a new placecast:', placecast.title)
     return knex("placecasts").insert({
       title: placecast.title,

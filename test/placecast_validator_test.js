@@ -10,7 +10,9 @@ describe('placecastValidator', () => {
       coordinates: [ -0.187682, 51.472303 ],
       s3_audio_file: "twinings_tea.mp3"
     };
-    expect(validatePlacecast(placecast)).to.be.true
+
+    const isValid = validatePlacecast(placecast)
+    expect(isValid).to.be.true
   })
 
   it('returns invalid if lat long are invalid', () => {
@@ -23,6 +25,7 @@ describe('placecastValidator', () => {
     const isValid = validatePlacecast(placecast)
 
     expect(isValid).to.not.be.true
+    expect(isValid.coordinates[0].violation).to.deep.eql({ value: 'must_be_valid_coordinates' })
   })
 
   it('returns invalid if title is blank', () => {
@@ -51,5 +54,30 @@ describe('placecastValidator', () => {
     expect(isValid).to.not.be.true
   })
 
+  it('returns invalid if coords are not an object', () => {
+    const placecast = {
+      title: "brenda",
+      subtitle: "",
+      coordinates: "-0.187682, 51.472303",
+      s3_audio_file: "twinings_tea.mp3"
+    };
+
+    const isValid = validatePlacecast(placecast)
+    expect(isValid).to.not.be.true
+    expect(isValid.coordinates[0].violation).to.deep.eql({ value: 'must_be_a_pair_of_coordinates' })
+  })
+
+  it('returns invalid if coords are not a pair of coordinates', () => {
+    const placecast = {
+      title: "brenda",
+      subtitle: "",
+      coordinates: [0.187682],
+      s3_audio_file: "twinings_tea.mp3"
+    };
+
+    const isValid = validatePlacecast(placecast)
+    expect(isValid).to.not.be.true
+    expect(isValid.coordinates[0].violation).to.deep.eql({ value: 'must_be_a_pair_of_coordinates' })
+  })
 
 })

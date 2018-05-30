@@ -13,7 +13,7 @@ const userName = "larahy";
 const accessToken = process.env.MAPBOX_TOKEN;
 const fs = require('fs');
 const AWS = require('aws-sdk');
-describe('Mapbox api', () => {
+describe.skip('Mapbox api', () => {
   describe('uploads', () => {
     it('should upload file data to a tileset', async () => {
 
