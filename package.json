@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "npm run babel && npm run front && npm run deploy",
+    "start": "npm run babel && npm run deploy",
     "start-dev": "npm run babel && npm run serve-dev",
     "babel": "babel server -d dist",
     "serve": "node dist/index.js",
