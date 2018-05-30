@@ -81,5 +81,14 @@ describe('Mapbox api', () => {
       allFeatures.status.should.eql(200);
       allFeatures.entity.features[0].should.include.keys(["id", "geometry", "properties"]);
     })
+    it('should return lat long for a given address', async () => {
+
+      const client = new MapboxClient(accessToken);
+      const latlong = await client.geocodeForward('35 Furness Road, London, sw6 2lj', {limit: 2}, function(err, res) {
+        return res
+      });
+      latlong.status.should.eql(200);
+      latlong.entity.features[0].geometry.should.include.keys(["type", "coordinates"]);
+    })
   })
 })
