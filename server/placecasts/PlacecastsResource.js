@@ -5,12 +5,13 @@ import {
 } from '../support/errors'
 
 export default class PlacecastsResource extends Resource {
-  constructor({prefix, log, createPlacecast}) {
+  constructor({prefix, log, createPlacecast, allPlacecasts}) {
     super({prefix, name: 'placecasts', path: '/placecasts'})
 
     log.info('Starting up resource: ' + this.name)
     this.log = log
     this.createPlacecast = createPlacecast
+    this.allPlacecasts = allPlacecasts
   }
 
   post (request, response, next) {
@@ -31,5 +32,18 @@ export default class PlacecastsResource extends Resource {
         }})
       .finally(next)
   }
+
+  get (request, response, next) {
+
+    return this.allPlacecasts.findAll()
+      .then((results) => {
+        return response.send(200, results)
+      })
+      .catch(err => {
+        return response.send(500)
+      })
+      .finally(next)
+  }
+
 }
 

@@ -25,4 +25,12 @@ export default class AllPlacecasts {
       })
   }
 
+  findAll () {
+    this.log.info('Finding all placecasts')
+    return knex.select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')).from('placecasts')
+      .then(placecasts => {
+        return placecasts
+      })
+  }
+
 }

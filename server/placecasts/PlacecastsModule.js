@@ -9,7 +9,7 @@ export default class PlacecastsModule extends Module {
     const allPlacecasts = new AllPlacecasts({log})
     const createPlacecast = new CreatePlacecast({log, allPlacecasts})
     this.placecastsResource = new PlacecastsResource({
-      prefix, log, createPlacecast
+      prefix, log, createPlacecast, allPlacecasts
     })
   }
 
