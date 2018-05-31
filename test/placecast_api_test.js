@@ -33,7 +33,7 @@ describe("routes: placecasts", () => {
       newPlacecast.status.should.eql(201);
       // newLandmark.should.have.header("Location");
       newPlacecast.type.should.eql("application/json");
-      newPlacecast.body.should.include.keys("id");
+      newPlacecast.body.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle");
     });
     it("does not add a new placecast if one already exists with that title", async () => {
       await chai.request(HOST).post(`${PATH}`).send(aPlacecastJson);
@@ -78,8 +78,8 @@ describe("routes: placecasts", () => {
       const firstPlacecast = find(allPlacecasts, [ 'id', aPlacecast.id ])
       const secondPlacecast = find(allPlacecasts, [ 'id', anotherPlacecast.id ])
 
-      firstPlacecast.title.should.equal(aPlacecastJson.title)
-      secondPlacecast.title.should.equal(anotherPlacecastJson.title)
+      firstPlacecast.should.deep.equal(aPlacecast)
+      secondPlacecast.should.deep.equal(anotherPlacecast)
     })
 
 

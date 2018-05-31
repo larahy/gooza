@@ -17,7 +17,7 @@ export default class AllPlacecasts {
       subtitle: placecast.subtitle,
       s3_audio_filename: placecast.s3_audio_file,
       geom: st.geomFromText(`Point(${placecast.coordinates[0]} ${placecast.coordinates[1]})`, 4326)
-    }, ['id'])
+    }, ['id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')])
       .then(placecast => {
         const placecastId = placecast[0]
         this.log.info('Successfully created placecast: ' + placecastId.id)
