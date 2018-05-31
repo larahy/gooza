@@ -28,7 +28,7 @@
     "mapbox": "^1.0.0-beta10",
     "mapbox-gl": "^0.45.0",
     "pg": "^7.4.1",
-    "restify": "^7.1.0",
+    "restify": "^6.4.0",
     "restify-cors-middleware": "^1.1.0",
     "validator": "^10.2.0",
     "validator.js": "^2.0.3"

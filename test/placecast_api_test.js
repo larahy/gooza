@@ -1,5 +1,5 @@
 import './spec_helper'
-import { find } from 'lodash'
+import { find, omit } from 'lodash'
 const port = process.env.PORT || 8081;
 const HOST = `http://localhost:${port}`;
 const PATH = "/api/v1/placecasts";
@@ -31,9 +31,9 @@ describe("routes: placecasts", () => {
     it("should add a new placecast", async () => {
       const newPlacecast = await chai.request(HOST).post(`${PATH}`).send(aPlacecastJson);
       newPlacecast.status.should.eql(201);
-      // newLandmark.should.have.header("Location");
+      newPlacecast.should.have.header("location");
       newPlacecast.type.should.eql("application/json");
-      newPlacecast.body.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle");
+      newPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle");
     });
     it("does not add a new placecast if one already exists with that title", async () => {
       await chai.request(HOST).post(`${PATH}`).send(aPlacecastJson);
@@ -65,21 +65,20 @@ describe("routes: placecasts", () => {
   describe(`GET ${PATH}`, () => {
     it('returns a list of all placecasts', async () => {
       const parseBody = response => {
-        return response.body
+        return response.body.content
       }
       const aPlacecast = await chai.request(HOST).post(`${PATH}`).send(aPlacecastJson).then(parseBody)
       const anotherPlacecast = await chai.request(HOST).post(`${PATH}`).send(anotherPlacecastJson).then(parseBody)
+
       const allPlacecastsResponse = await chai.request(HOST).get(`${PATH}`)
 
       allPlacecastsResponse.status.should.eql(200);
       allPlacecastsResponse.type.should.eql("application/json");
+      const firstPlacecast = find(allPlacecastsResponse.body, [ 'id', aPlacecast.id ])
+      const secondPlacecast = find(allPlacecastsResponse.body, [ 'id', anotherPlacecast.id ])
 
-      const allPlacecasts = await parseBody(allPlacecastsResponse);
-      const firstPlacecast = find(allPlacecasts, [ 'id', aPlacecast.id ])
-      const secondPlacecast = find(allPlacecasts, [ 'id', anotherPlacecast.id ])
-
-      firstPlacecast.should.deep.equal(aPlacecast)
-      secondPlacecast.should.deep.equal(anotherPlacecast)
+      firstPlacecast.should.deep.equal(omit(aPlacecast, '_links'))
+      secondPlacecast.should.deep.equal(omit(anotherPlacecast, '_links'))
     })
 
 

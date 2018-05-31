@@ -1,25 +1,25 @@
 import Resource from '../framework/Resource'
-import Promise from 'bluebird'
 import {
   ErrorIs,
 } from '../support/errors'
+import {respondCreated} from "../support/responses";
 
 export default class PlacecastsResource extends Resource {
-  constructor({prefix, log, createPlacecast, allPlacecasts}) {
+  constructor({prefix, log, createPlacecast, allPlacecasts, placecastJson}) {
     super({prefix, name: 'placecasts', path: '/placecasts'})
 
     log.info('Starting up resource: ' + this.name)
     this.log = log
     this.createPlacecast = createPlacecast
     this.allPlacecasts = allPlacecasts
+    this.placecastJson = placecastJson
   }
 
   post (request, response, next) {
 
     return this.createPlacecast.create({ placecast: request.body })
-      .then((results) => {
-        return response.send(201, results)
-      })
+      .then(({placecast}) => this.renderPlacecastAsJson.bind(this)(placecast))
+      .then(respondCreated(response))
       .catch(err => {
         if (ErrorIs.duplicatePlacecast(err)) {
           this.log.warn({error: err.detail}, 'Duplicate placecast')
@@ -43,6 +43,10 @@ export default class PlacecastsResource extends Resource {
         return response.send(500)
       })
       .finally(next)
+  }
+
+  renderPlacecastAsJson (placecast) {
+    return this.placecastJson.render(placecast, { router: this.router })
   }
 
 }
