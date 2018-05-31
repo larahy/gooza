@@ -11,7 +11,8 @@ export const validatePlacecast = placecast => {
   const rules = {
     title: is.notBlank(),
     subtitle: is.notBlank(),
-    coordinates: is.LatLong()
+    coordinates: is.LatLong(),
+    s3_audio_filename: is.notBlank(),
   }
 
   return validatorFactory().validate(placecast, rules)

@@ -8,7 +8,7 @@ describe('placecastValidator', () => {
       title: "Twinings Tea Shop",
       subtitle: "bla bla",
       coordinates: [ -0.187682, 51.472303 ],
-      s3_audio_file: "twinings_tea.mp3"
+      s3_audio_filename: "twinings_tea.mp3"
     };
 
     const isValid = validatePlacecast(placecast)
@@ -20,7 +20,7 @@ describe('placecastValidator', () => {
       title: "Twinings Tea Shop",
       subtitle: "bla bla",
       coordinates: [ -200.187682, 500.472303 ],
-      s3_audio_file: "twinings_tea.mp3"
+      s3_audio_filename: "twinings_tea.mp3"
     };
     const isValid = validatePlacecast(placecast)
 
@@ -33,7 +33,7 @@ describe('placecastValidator', () => {
       title: "",
       subtitle: "bla bla",
       coordinates: [ -0.187682, 51.472303 ],
-      s3_audio_file: "twinings_tea.mp3"
+      s3_audio_filename: "twinings_tea.mp3"
     };
 
     const isValid = validatePlacecast(placecast)
@@ -46,7 +46,20 @@ describe('placecastValidator', () => {
       title: "brenda",
       subtitle: "",
       coordinates: [ -0.187682, 51.472303 ],
-      s3_audio_file: "twinings_tea.mp3"
+      s3_audio_filename: "twinings_tea.mp3"
+    };
+
+    const isValid = validatePlacecast(placecast)
+
+    expect(isValid).to.not.be.true
+  })
+
+  it('returns invalid if s3 audio filename is missing', () => {
+    const placecast = {
+      title: "Twinings Tea Shop",
+      subtitle: "bla bla",
+      coordinates: [ -0.187682, 51.472303 ],
+      s3_audio_filename: "    "
     };
 
     const isValid = validatePlacecast(placecast)
@@ -59,7 +72,7 @@ describe('placecastValidator', () => {
       title: "brenda",
       subtitle: "",
       coordinates: "-0.187682, 51.472303",
-      s3_audio_file: "twinings_tea.mp3"
+      s3_audio_filename: "twinings_tea.mp3"
     };
 
     const isValid = validatePlacecast(placecast)
@@ -72,7 +85,7 @@ describe('placecastValidator', () => {
       title: "brenda",
       subtitle: "",
       coordinates: [0.187682],
-      s3_audio_file: "twinings_tea.mp3"
+      s3_audio_filename: "twinings_tea.mp3"
     };
 
     const isValid = validatePlacecast(placecast)
