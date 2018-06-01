@@ -3,6 +3,7 @@ const config = require("../../knexfile")[env];
 const knex = require("knex")(config);
 const knexPostgis = require('knex-postgis');
 const st = knexPostgis(knex);
+import {toPlacecasts, toPlacecast} from "../support/mappers";
 
 export default class AllPlacecasts {
 
@@ -19,7 +20,10 @@ export default class AllPlacecasts {
       geom: st.geomFromText(`Point(${placecast.coordinates[0]} ${placecast.coordinates[1]})`, 4326)
     }, ['id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')])
       .then(placecast => {
-        this.log.info('Successfully created placecast: ' + placecast.id)
+        return toPlacecast(placecast[0])
+      })
+      .then(placecast => {
+        this.log.info('Successfully created placecast: ' + placecast.title)
         return {placecast}
       })
   }
@@ -27,8 +31,25 @@ export default class AllPlacecasts {
   findAll () {
     this.log.info('Finding all placecasts')
     return knex.select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')).from('placecasts')
-      .then(placecasts => {
-        return placecasts
+      .then(results => {
+        return toPlacecasts(results)
+      })
+      .then(results => {
+        return results
+      })
+  }
+
+  findOneById ({id}) {
+    this.log.info('Selecting placecast by ID')
+    return knex("placecasts")
+      .select()
+      .where({ id })
+      .then(placecast => {
+        if (!placecast.length) {
+          throw new Error("The requested resource does not exist");
+        }
+        const returnable = toPlacecast(placecast[0])
+        return returnable
       })
   }
 

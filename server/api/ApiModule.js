@@ -31,6 +31,10 @@ export default class ApiModule extends Module {
       let resource = halson({})
         .addLink('self', server.router.render('root'))
         .addLink('placecasts', server.router.render('placecasts'))
+        .addLink('placecast', {
+          href: `${server.router.render('placecast', { placecastId: '' })}{placecastId}`,
+          templated: true
+        })
 
       response.json(resource)
       next()

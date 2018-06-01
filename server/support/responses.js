@@ -5,6 +5,11 @@ export const respondCreated = response => resource => {
   return response.send(resource)
 }
 
+export const respondOk = response => resource => {
+  response.status(200)
+  return response.send(resource)
+}
+
 
 
 
