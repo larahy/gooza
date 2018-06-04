@@ -1,3 +1,5 @@
+import {NotFoundError} from "../support/errors";
+
 const env = process.env.NODE_ENV || "test";
 const config = require("../../knexfile")[env];
 const knex = require("knex")(config);
@@ -46,7 +48,7 @@ export default class AllPlacecasts {
       .where({ id })
       .then(placecast => {
         if (!placecast.length) {
-          throw new Error("The requested resource does not exist");
+          throw new NotFoundError("The requested placecast does not exist");
         }
         const returnable = toPlacecast(placecast[0])
         return returnable

@@ -10,6 +10,34 @@ export const respondOk = response => resource => {
   return response.send(resource)
 }
 
+export const respondNotFound = response => errorMessage => {
+  return response.send(404, {type: 'halJson', content: errorMessage})
+}
+
+export const respondBadRequest = (response, code, message = null) => () => {
+  response.status(400)
+
+  return writeContent({
+    type: 'halJson',
+    content: formattedErrorContent(
+      'not found',
+      message,
+      code
+    )
+  }, response)
+}
+
+export const respondConflict = response => errorMessage => {
+  return response.send(409, {type: 'halJson', content: errorMessage})
+}
+
+export const respondInvalid = response => error =>  {
+  return response.send(422, {type: 'halJson', content: {message: error.message, fields: Object.keys(error.validationResult)}})
+}
+
+export const respondInternalServerError = response => () => {
+  return response.send(500, {type: 'halJson', content: 'The server encountered an internal error. Please retry your request.'})
+}
 
 
 

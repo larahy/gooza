@@ -1,5 +1,8 @@
 import Resource from '../framework/Resource'
-import {respondOk} from "../support/responses";
+import {respondOk, respondNotFound, respondInternalServerError} from "../support/responses";
+import {
+  ErrorIs,
+} from '../support/errors'
 
 export default class PlacecastResource extends Resource {
   constructor ({prefix, log, allPlacecasts, placecastJson}) {
@@ -17,10 +20,12 @@ export default class PlacecastResource extends Resource {
       .then(this.renderPlacecastAsJson.bind(this))
       .then(respondOk(response))
       .catch(err => {
-        if (err.message === 'The requested resource does not exist') {
-          return response.send(404, err)
+        if (ErrorIs.notFound(err)) {
+          this.log.warn({error: err.message})
+          respondNotFound(response)(err.message)
+        } else {
+          respondInternalServerError(response)()
         }
-        response.send(500, err)
       })
       .finally(next)
   }

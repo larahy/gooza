@@ -2,10 +2,10 @@ import Resource from '../framework/Resource'
 import {
   ErrorIs,
 } from '../support/errors'
-import {respondCreated} from "../support/responses";
+import {respondOk, respondCreated, respondConflict, respondInvalid, respondInternalServerError} from "../support/responses";
 
 export default class PlacecastsResource extends Resource {
-  constructor({prefix, log, createPlacecast, allPlacecasts, placecastJson}) {
+  constructor({prefix, log, createPlacecast, allPlacecasts, placecastJson, placecastsJson}) {
     super({prefix, name: 'placecasts', path: '/placecasts'})
 
     log.info('Starting up resource: ' + this.name)
@@ -13,40 +13,46 @@ export default class PlacecastsResource extends Resource {
     this.createPlacecast = createPlacecast
     this.allPlacecasts = allPlacecasts
     this.placecastJson = placecastJson
+    this.placecastsJson = placecastsJson
   }
 
-  post (request, response, next) {
+  post(request, response, next) {
 
-    return this.createPlacecast.create({ placecast: request.body })
+    return this.createPlacecast.create({placecast: request.body})
       .then(({placecast}) => this.renderPlacecastAsJson.bind(this)(placecast))
       .then(respondCreated(response))
       .catch(err => {
         if (ErrorIs.duplicatePlacecast(err)) {
           this.log.warn({error: err.detail}, 'Duplicate placecast')
-          return response.send(409, {code: err.constraint, message: 'A placecast with this title already exists'})
+          respondConflict(response)('A placecast with that title already exists')
         } else if (ErrorIs.invalidPlacecast(err)) {
-          return response.send(400, {code: err.code, message: err.message})
+          this.log.warn({error: err.detail}, 'Mandatory data missing')
+          respondInvalid(response)({message: err.message, validationResult: err.validationResult})
         }
         else {
-          return response.send(500)
-        }})
+          respondInternalServerError(response)()
+        }
+      })
       .finally(next)
   }
 
-  get (request, response, next) {
+  get(request, response, next) {
 
     return this.allPlacecasts.findAll()
-      .then((results) => {
-        return response.send(200, results)
-      })
+      .then(this.renderPlacecastsAsJson.bind(this))
+      .then(respondOk(response))
       .catch(err => {
-        return response.send(500)
+        respondInternalServerError(response)()
       })
       .finally(next)
   }
 
-  renderPlacecastAsJson (placecast) {
-    return this.placecastJson.render(placecast, { router: this.router })
+  renderPlacecastAsJson(placecast) {
+    return this.placecastJson.render(placecast, {router: this.router})
+  }
+
+  renderPlacecastsAsJson (placecasts) {
+    return this.placecastsJson.render(placecasts, { router: this.router })
   }
 
 }

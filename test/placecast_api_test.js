@@ -1,5 +1,6 @@
 import './spec_helper'
-import { find, omit } from 'lodash'
+import { find } from 'lodash'
+import halson from 'halson'
 const port = process.env.PORT || 8081;
 const HOST = `http://localhost:${port}`;
 const PATH = "/api/v1/placecasts";
@@ -41,13 +42,12 @@ describe("routes: placecasts", () => {
         await chai.request(HOST).post(`${PATH}`).send(aPlacecastJson)
       } catch (error) {
         error.should.have.property('status').with.valueOf('409');
-        error.response.body.message.should.eql(`A placecast with this title already exists`);
-        error.response.body.code.should.eql(`placecasts_title_unique`);
+        error.response.body.content.should.eql(`A placecast with that title already exists`);
       }
     });
     it("does not add a new placecast if placecast data is invalid", async () => {
       const invalidPlacecast = {
-        title: "valid title",
+        title: "",
         subtitle: "",
         coordinates: [-0.187682, 51.472303],
         s3_audio_file: ""
@@ -55,30 +55,33 @@ describe("routes: placecasts", () => {
       try {
         await chai.request(HOST).post(`${PATH}`).send(invalidPlacecast)
       } catch (error) {
-        error.should.have.property('status').with.valueOf('400');
-        error.response.body.code.should.eql("INVALID_DATA");
-        error.response.body.message.should.eql("Data missing or invalid");
+        error.should.have.property('status').with.valueOf('422');
+        error.response.body.content.fields.should.deep.eql(['title','subtitle']);
+        error.response.body.content.message.should.eql("Data missing or invalid");
       }
     });
   })
 
   describe(`GET ${PATH}`, () => {
     it('returns a list of all placecasts', async () => {
-      const parseBody = response => {
-        return response.body.content
-      }
+
+      const parseBody = response => halson(response.body.content)
       const aPlacecast = await chai.request(HOST).post(`${PATH}`).send(aPlacecastJson).then(parseBody)
       const anotherPlacecast = await chai.request(HOST).post(`${PATH}`).send(anotherPlacecastJson).then(parseBody)
 
       const allPlacecastsResponse = await chai.request(HOST).get(`${PATH}`)
 
+      const allPlacecasts = parseBody(allPlacecastsResponse).getEmbeds('placecasts')
       allPlacecastsResponse.status.should.eql(200);
       allPlacecastsResponse.type.should.eql("application/json");
-      const firstPlacecast = find(allPlacecastsResponse.body, [ 'id', aPlacecast.id ])
-      const secondPlacecast = find(allPlacecastsResponse.body, [ 'id', anotherPlacecast.id ])
+      const firstPlacecast = find(allPlacecasts, [ 'id', aPlacecast.id ])
 
-      firstPlacecast.should.deep.equal(omit(aPlacecast, '_links'))
-      secondPlacecast.should.deep.equal(omit(anotherPlacecast, '_links'))
+      firstPlacecast.title.should.equal(aPlacecast.title)
+      firstPlacecast.subtitle.should.equal(aPlacecast.subtitle)
+      firstPlacecast.s3_audio_filename.should.equal(aPlacecast.s3_audio_filename)
+      firstPlacecast.geom.should.equal(aPlacecast.geom)
+      firstPlacecast._links.should.deep.equal(aPlacecast._links)
+
     })
   })
 
@@ -94,9 +97,8 @@ describe("routes: placecasts", () => {
         await chai.request(HOST).get(`${PATH}/999`)
       } catch (error) {
         error.should.have.property('status').with.valueOf('404');
-        error.message.should.eql(`Not Found`);
+        error.response.body.content.should.eql('The requested placecast does not exist');
       }
-
     });
   });
 });
