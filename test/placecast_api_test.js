@@ -101,4 +101,20 @@ describe("routes: placecasts", () => {
       }
     });
   });
+  describe(`GET ${PATH}/:id`, () => {
+    it("should return a single resource", async () => {
+      const aPlacecast = await chai.request(HOST).get(`${PATH}/1`);
+      aPlacecast.should.have.property('status').with.valueOf('200');
+      aPlacecast.headers.should.have.property('content-type').with.valueOf('application/json');
+      aPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle");
+    });
+    it("should return an error when the requested placecast does not exist", async () => {
+      try {
+        await chai.request(HOST).get(`${PATH}/999`)
+      } catch (error) {
+        error.should.have.property('status').with.valueOf('404');
+        error.response.body.content.should.eql('The requested placecast does not exist');
+      }
+    });
+  });
 });

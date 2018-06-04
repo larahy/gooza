@@ -12,7 +12,7 @@ const logFile = path.normalize(path.join(logDir, 'component-tests.log'))
 
 
 let server
-let log
+export let log
 
 before(done => {
   fs.ensureFileSync(logFile)

@@ -36,19 +36,44 @@ export default class AllPlacecasts {
       .then(results => {
         return toPlacecasts(results)
       })
-      .then(results => {
-        return results
-      })
   }
 
   findOneById ({id}) {
     this.log.info('Selecting placecast by ID')
     return knex("placecasts")
-      .select()
+      .select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'))
       .where({ id })
       .then(placecast => {
         if (!placecast.length) {
           throw new NotFoundError("The requested placecast does not exist");
+        }
+        const returnable = toPlacecast(placecast[0])
+        return returnable
+      })
+  }
+
+  findByTitle ({ title }) {
+
+    this.log.info('Selecting placecasts by title')
+    return knex("placecasts")
+      .select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'))
+      .whereRaw('LOWER(title) LIKE ?', '%'+title.toLowerCase()+'%')
+      .then(results => {
+        if (!results.length) {
+          throw new NotFoundError("No placecasts exist with that title");
+        }
+        return toPlacecasts(results)
+      })
+  }
+
+  findByCity ({ city }) {
+
+    this.log.info('Selecting placecasts by city')
+    return knex("placecasts")
+      .whereRaw('LOWER(title) LIKE ?', '%'+title.toLowerCase()+'%')
+      .then(placecast => {
+        if (!placecast.length) {
+          throw new NotFoundError("No placecasts exist with that title");
         }
         const returnable = toPlacecast(placecast[0])
         return returnable
