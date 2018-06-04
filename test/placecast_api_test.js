@@ -83,7 +83,7 @@ describe("routes: placecasts", () => {
   })
 
   describe(`GET ${PATH}/:id`, () => {
-    it.only("should return a single resource", async () => {
+    it("should return a single resource", async () => {
       const aPlacecast = await chai.request(HOST).get(`${PATH}/1`);
       aPlacecast.should.have.property('status').with.valueOf('200');
       aPlacecast.headers.should.have.property('content-type').with.valueOf('application/json');
