@@ -14,12 +14,15 @@ export default class AllPlacecasts {
   }
 
   add ({placecast}) {
+    const lat = placecast.coordinates[1]
+    const long = placecast.coordinates[0]
+
     this.log.info('Creating a new placecast:', placecast.title)
     return knex("placecasts").insert({
       title: placecast.title,
       subtitle: placecast.subtitle,
       s3_audio_filename: placecast.s3_audio_file,
-      geom: st.geomFromText(`Point(${placecast.coordinates[0]} ${placecast.coordinates[1]})`, 4326)
+      geom: st.geomFromText(`Point(${long} ${lat})`, 4326)
     }, ['id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')])
       .then(placecast => {
         return toPlacecast(placecast[0])
@@ -66,17 +69,17 @@ export default class AllPlacecasts {
       })
   }
 
-  findByCity ({ city }) {
+  findByProximity ({ long, lat, radius }) {
 
-    this.log.info('Selecting placecasts by city')
+    this.log.info('Selecting placecasts by proximity')
     return knex("placecasts")
-      .whereRaw('LOWER(title) LIKE ?', '%'+title.toLowerCase()+'%')
-      .then(placecast => {
-        if (!placecast.length) {
+      .select('title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'))
+      .whereRaw(`ST_DWithin(geom, ST_MakePoint(${long},${lat})::geography, ${radius})`)
+      .then(results => {
+        if (!results.length) {
           throw new NotFoundError("No placecasts exist with that title");
         }
-        const returnable = toPlacecast(placecast[0])
-        return returnable
+        return toPlacecasts(results)
       })
   }
 
