@@ -33,9 +33,11 @@ export default class AllPlacecasts {
       })
   }
 
-  findAll (params = {}) {
+  findAll ({params}) {
     if (params.title) {
       return this.findByTitle(params)
+    } else if (params.coordinates) {
+      return this.findByProximity({lat: params.coordinates.lat, long: params.coordinates.long, radius: params.radius})
     }
     this.log.info('Finding all placecasts')
     return knex.select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')).from('placecasts')
@@ -73,12 +75,9 @@ export default class AllPlacecasts {
 
     this.log.info('Selecting placecasts by proximity')
     return knex("placecasts")
-      .select('title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'))
+      .select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'))
       .whereRaw(`ST_DWithin(geom, ST_MakePoint(${long},${lat})::geography, ${radius})`)
       .then(results => {
-        if (!results.length) {
-          throw new NotFoundError("No placecasts exist with that title");
-        }
         return toPlacecasts(results)
       })
   }

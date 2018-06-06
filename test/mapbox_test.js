@@ -90,5 +90,16 @@ describe.skip('Mapbox api', () => {
       latlong.status.should.eql(200);
       latlong.entity.features[0].geometry.should.include.keys(["type", "coordinates"]);
     })
+    it('should return lat long for Twinings', async () => {
+
+      const client = new MapboxClient(accessToken);
+      const latlong = await client.geocodeForward('St Clement Danes Church, Strand, London, UK', {limit: 2}, function(err, res) {
+        return res
+      });
+      console.log(latlong.entity.features)
+      console.log(latlong.entity.features[0].geometry.coordinates)
+      latlong.status.should.eql(200);
+      latlong.entity.features[0].geometry.should.include.keys(["type", "coordinates"]);
+    })
   })
 })

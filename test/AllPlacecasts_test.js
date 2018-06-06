@@ -16,7 +16,7 @@ describe('AllPlacecasts', () => {
     subtitle: "The Twinings logo, a simple, gold sign bearing the company name, has remained unchanged since 1787, \n" +
     "making it the oldest corporate logo still in use. In 1837 Queen Victoria granted the company a royal warrant, a merit \n" +
     "which has given Twinings the honor of providing tea to the royal family ever since. ",
-    coordinates: [-0.1483, 51.5675],
+    coordinates: [ -0.1128, 51.5133 ],
     s3_audio_file: "twinings_tea.mp3"
   };
 
