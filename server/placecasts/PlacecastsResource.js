@@ -38,7 +38,7 @@ export default class PlacecastsResource extends Resource {
 
   get(request, response, next) {
 
-    return this.allPlacecasts.findAll()
+    return this.allPlacecasts.findAll({ title: request.query.title })
       .then(this.renderPlacecastsAsJson.bind(this))
       .then(respondOk(response))
       .catch(err => {

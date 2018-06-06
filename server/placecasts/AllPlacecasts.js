@@ -21,7 +21,7 @@ export default class AllPlacecasts {
     return knex("placecasts").insert({
       title: placecast.title,
       subtitle: placecast.subtitle,
-      s3_audio_filename: placecast.s3_audio_file,
+      s3_audio_filename: placecast.s3_audio_filename,
       geom: st.geomFromText(`Point(${long} ${lat})`, 4326)
     }, ['id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')])
       .then(placecast => {
@@ -33,7 +33,10 @@ export default class AllPlacecasts {
       })
   }
 
-  findAll () {
+  findAll (params = {}) {
+    if (params.title) {
+      return this.findByTitle(params)
+    }
     this.log.info('Finding all placecasts')
     return knex.select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')).from('placecasts')
       .then(results => {
@@ -62,9 +65,6 @@ export default class AllPlacecasts {
       .select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'))
       .whereRaw('LOWER(title) LIKE ?', '%'+title.toLowerCase()+'%')
       .then(results => {
-        if (!results.length) {
-          throw new NotFoundError("No placecasts exist with that title");
-        }
         return toPlacecasts(results)
       })
   }

@@ -10,36 +10,43 @@ const should = chai.should();
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-const aPlacecastJson = {
-  title: "Twinings Tea Shop",
-  subtitle: "The Twinings logo, a simple, gold sign bearing the company name, has remained unchanged since 1787, \n" +
-  "making it the oldest corporate logo still in use. In 1837 Queen Victoria granted the company a royal warrant, a merit \n" +
-  "which has given Twinings the honor of providing tea to the royal family ever since. ",
-  coordinates: [-0.187682, 51.472303],
-  s3_audio_file: "twinings_tea.mp3"
-};
+const buildPlacecast = ({
+  title = 'Twinings Tea Shop',
+  subtitle = 'The Twinings logo, a simple, gold sign bearing the company name, has remained unchanged since 1787.',
+  coordinates = [-0.187682, 51.472303],
+  s3_audio_filename = 'twinings_tea.mp3'
+} = {}) => {
+  return {
+    title,
+    subtitle,
+    coordinates,
+    s3_audio_filename
+  }
+}
 
-const anotherPlacecastJson = {
-  title: "Potteries and Piggeries",
-  subtitle: "This kiln, built in about 1824, is all that is left of a slum that was once one of the worst places to live" +
-  " in London. The area was called the Potteries and Piggeries, though even before that it was known as Cut-throat Lane. ",
-  coordinates: [-0.2114, 51.5104],
-  s3_audio_file: "potteries_and_piggeries.mp3"
-};
+const parseBody = response => halson(response.body.content)
+const TwiningsTeaShopJson = buildPlacecast({})
+
+const anotherPlacecastJson = buildPlacecast({
+    title: 'Potteries and Piggeries',
+    s3_audio_filename: 'potteries_and_piggeries.mp3',
+    subtitle: 'This kiln, built in about 1824, is all that is left of a slum that was once one of the worst places to live in London.',
+    coordinates: [-0.2114, 51.5104]
+  })
 
 describe("routes: placecasts", () => {
   describe(`POST ${PATH}`, () => {
     it("should add a new placecast", async () => {
-      const newPlacecast = await chai.request(HOST).post(`${PATH}`).send(aPlacecastJson);
+      const newPlacecast = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson);
       newPlacecast.status.should.eql(201);
       newPlacecast.should.have.header("location");
       newPlacecast.type.should.eql("application/json");
       newPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle");
     });
     it("does not add a new placecast if one already exists with that title", async () => {
-      await chai.request(HOST).post(`${PATH}`).send(aPlacecastJson);
+      await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson);
       try {
-        await chai.request(HOST).post(`${PATH}`).send(aPlacecastJson)
+        await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson)
       } catch (error) {
         error.should.have.property('status').with.valueOf('409');
         error.response.body.content.should.eql(`A placecast with that title already exists`);
@@ -65,9 +72,8 @@ describe("routes: placecasts", () => {
   describe(`GET ${PATH}`, () => {
     it('returns a list of all placecasts', async () => {
 
-      const parseBody = response => halson(response.body.content)
-      const aPlacecast = await chai.request(HOST).post(`${PATH}`).send(aPlacecastJson).then(parseBody)
-      const anotherPlacecast = await chai.request(HOST).post(`${PATH}`).send(anotherPlacecastJson).then(parseBody)
+      const aPlacecast = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
+      await chai.request(HOST).post(`${PATH}`).send(anotherPlacecastJson).then(parseBody)
 
       const allPlacecastsResponse = await chai.request(HOST).get(`${PATH}`)
 
@@ -81,7 +87,30 @@ describe("routes: placecasts", () => {
       firstPlacecast.s3_audio_filename.should.equal(aPlacecast.s3_audio_filename)
       firstPlacecast.geom.should.equal(aPlacecast.geom)
       firstPlacecast._links.should.deep.equal(aPlacecast._links)
-
+    })
+    it('returns a list of all placecasts with matching titles when they exist', async () => {
+      const HamleysShopJson = buildPlacecast({
+        title: 'Hamleys Toy Shop',
+        s3_audio_filename: 'hamleys_toys.mp3'
+      })
+      const Twinings = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
+      const Hamleys = await chai.request(HOST).post(`${PATH}`).send(HamleysShopJson).then(parseBody)
+      const allPlacecastsWithShopInTitleResponse = await chai.request(HOST).get(`${PATH}`).query({title: 'shop'})
+      const allPlacecastsWithShopInTitle = parseBody(allPlacecastsWithShopInTitleResponse).getEmbeds('placecasts')
+      allPlacecastsWithShopInTitleResponse.status.should.eql(200);
+      allPlacecastsWithShopInTitleResponse.type.should.eql("application/json");
+      allPlacecastsWithShopInTitle.length.should.eql(2)
+      const TwiningsPlacecast = find(allPlacecastsWithShopInTitle, [ 'id', Twinings.id ])
+      const HamleysPlacecast = find(allPlacecastsWithShopInTitle, [ 'id', Hamleys.id ])
+      TwiningsPlacecast.title.should.equal(Twinings.title)
+      HamleysPlacecast.title.should.equal(Hamleys.title)
+    })
+    it('returns no results when they do not exist', async () => {
+      const allPlacecastsWithBrendaInTitleResponse = await chai.request(HOST).get(`${PATH}`).query({title: 'Brenda'})
+      const allPlacecastsWithBrendaInTitle = parseBody(allPlacecastsWithBrendaInTitleResponse).getEmbeds('placecasts')
+      allPlacecastsWithBrendaInTitleResponse.status.should.eql(200);
+      allPlacecastsWithBrendaInTitleResponse.type.should.eql("application/json");
+      allPlacecastsWithBrendaInTitle.length.should.eql(0)
     })
   })
 
@@ -101,6 +130,7 @@ describe("routes: placecasts", () => {
       }
     });
   });
+
   describe(`GET ${PATH}/:id`, () => {
     it("should return a single resource", async () => {
       const aPlacecast = await chai.request(HOST).get(`${PATH}/1`);
