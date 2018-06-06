@@ -6,6 +6,7 @@ import path from 'path'
 import fs from 'fs-extra'
 import Server from '../server/Server'
 const port = process.env.PORT || 8081
+const mapboxToken = process.env.MAPBOX_TOKEN
 
 const logDir = path.normalize(path.join(process.cwd(), 'run', 'logs'))
 const logFile = path.normalize(path.join(logDir, 'component-tests.log'))
@@ -29,7 +30,8 @@ before(done => {
 
   server = new Server({
     port,
-    log
+    log,
+    mapboxToken
   })
   server.onInitialisationComplete()
     .tap(() => {

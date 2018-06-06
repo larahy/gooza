@@ -5,7 +5,7 @@ import {
 import {respondOk, respondCreated, respondConflict, respondInvalid, respondInternalServerError} from "../support/responses";
 
 export default class PlacecastsResource extends Resource {
-  constructor({prefix, log, createPlacecast, allPlacecasts, placecastJson, placecastsJson}) {
+  constructor({prefix, log, createPlacecast, allPlacecasts, placecastJson, placecastsJson, findPlacecasts}) {
     super({prefix, name: 'placecasts', path: '/placecasts'})
 
     log.info('Starting up resource: ' + this.name)
@@ -14,6 +14,7 @@ export default class PlacecastsResource extends Resource {
     this.allPlacecasts = allPlacecasts
     this.placecastJson = placecastJson
     this.placecastsJson = placecastsJson
+    this.findPlacecasts = findPlacecasts
   }
 
   post(request, response, next) {
@@ -37,8 +38,7 @@ export default class PlacecastsResource extends Resource {
   }
 
   get(request, response, next) {
-
-    return this.allPlacecasts.findAll({params: request.query})
+    return this.findPlacecasts.findAll({params: request.query})
       .then(this.renderPlacecastsAsJson.bind(this))
       .then(respondOk(response))
       .catch(err => {

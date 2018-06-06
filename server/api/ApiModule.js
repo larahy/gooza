@@ -1,4 +1,5 @@
 import halson from 'halson'
+const MapboxClient = require('mapbox')
 import Module from '../framework/Module'
 import PlacecastsModule from '../placecasts/index'
 const serveStatic = require('restify').plugins.serveStatic
@@ -6,13 +7,16 @@ const env = process.env.NODE_ENV || "production";
 const config = require("../../knexfile")[env];
 const knex = require("knex")(config);
 
+
+
 export default class ApiModule extends Module {
-  constructor ({ prefix = '/api/v1', log }) {
+  constructor ({prefix = '/api/v1', log, mapboxToken }) {
     super()
     this.prefix = prefix
     this.log = log
     this.log.info('Starting up API module.')
-    this.placecasts = new PlacecastsModule({prefix, log})
+    const mapboxClient = new MapboxClient(mapboxToken);
+    this.placecasts = new PlacecastsModule({prefix, log, mapboxClient})
     knex.migrate.latest()
       .then(() => {
         this.log.info('Migrations complete.')

@@ -41,17 +41,15 @@ describe('AllPlacecasts', () => {
   })
 
   it('selects all placecasts within a given radius of a set of coordinates', async () => {
-    const coordinates = {
-      long: 0.1383,
-      lat: 51.5666
-    }
+    const long = 0.1383
+    const lat = 51.5666
 
     await allPlacecasts.add({placecast: aPlacecastJson})
     await allPlacecasts.add({placecast: anotherPlacecastJson})
-    const placecastsWithin25km = await allPlacecasts.findByProximityTo({coordinates, radius: 25000})
+    const placecastsWithin25km = await allPlacecasts.findByProximityTo({lat, long, radius: 25000})
     expect(placecastsWithin25km.length).to.equal(4)
 
-    const placecastsWithin20km = await allPlacecasts.findByProximityTo({coordinates, radius: 20000})
+    const placecastsWithin20km = await allPlacecasts.findByProximityTo({lat, long, radius: 20000})
     expect(placecastsWithin20km.length).to.equal(3)
   })
 })

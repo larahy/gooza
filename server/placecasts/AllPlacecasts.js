@@ -33,11 +33,15 @@ export default class AllPlacecasts {
       })
   }
 
-  findAll ({params}) {
-    if (params.title) {
-      return this.findByTitle(params)
-    } else if (params.coordinates) {
-      return this.findByProximityTo({coordinates: params.coordinates, radius: params.radius})
+  findAll (params) {
+    const title = params.title
+    const lat = params.lat
+    const long = params.long
+    const radius = params.radius
+    if (title) {
+      return this.findByTitle({title})
+    } else if (lat && long) {
+      return this.findByProximityTo({lat, long, radius})
     }
     this.log.info('Finding all placecasts')
     return knex.select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')).from('placecasts')
@@ -71,10 +75,7 @@ export default class AllPlacecasts {
       })
   }
 
-  findByProximityTo({ coordinates, radius }) {
-
-    const lat = coordinates.lat
-    const long = coordinates.long
+  findByProximityTo({ lat, long, radius }) {
 
     this.log.info('Selecting placecasts by proximity')
     return knex("placecasts")

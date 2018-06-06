@@ -8,7 +8,7 @@ const cors = corsMiddleware({
   exposeHeaders: ['API-Token-Expiry']
 })
 export default class Server {
-  constructor ({port, log}) {
+  constructor ({port, log, mapboxToken}) {
 
     this.port = port
     this.log = log
@@ -20,7 +20,7 @@ export default class Server {
       this.server.use(restify.plugins.queryParser({ mapParams: true }))
       this.server.use(restify.plugins.fullResponse())
 
-    const api = new ApiModule({log})
+    const api = new ApiModule({log, mapboxToken})
     log.info('Setting up routes')
     api.configureRoutes({server: this.server})
 

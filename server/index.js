@@ -3,13 +3,15 @@ import Server from './Server'
 
 const port = process.env.PORT || 8081;
 const logLevel = process.env.LOG_LEVEL || 'info'
+const mapboxToken = process.env.MAPBOX_TOKEN
 const log = bunyan.createLogger({
   name: 'server',
   level: logLevel
 })
 const server = new Server({
   port,
-  log
+  log,
+  mapboxToken
 })
 
 server.onInitialisationComplete()
