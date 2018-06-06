@@ -149,6 +149,27 @@ describe("routes: placecasts", () => {
       allPlacecastsWithin200kmsOfOutbackResponse.type.should.eql("application/json");
       allPlacecastsWithin200kmsOfOutback.length.should.eql(0)
     })
+    // it.skip('returns a list of all placecasts within a specified radius of an address when they exist', async () => {
+    //   // St Clement Danes is next door to Twinings Tea Shop
+    //   const StClementDanesJson = buildPlacecast({
+    //     title: 'St Clement Danes',
+    //     s3_audio_filename: 'st_clement_danes.mp3',
+    //     coordinates: [-0.113898, 51.513107 ]
+    //   })
+    //   const address = 'St Clement Danes Church, Strand, London, UK'
+    //   const radius = 1000;
+    //   const Twinings = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
+    //   const StClementDanes = await chai.request(HOST).post(`${PATH}`).send(StClementDanesJson).then(parseBody)
+    //   const allPlacecastsWithin1kmResponse = await chai.request(HOST).get(`${PATH}`).query({address, radius})
+    //   const allPlacecastsWithin1km = parseBody(allPlacecastsWithin1kmResponse).getEmbeds('placecasts')
+    //   allPlacecastsWithin1kmResponse.status.should.eql(200);
+    //   allPlacecastsWithin1kmResponse.type.should.eql("application/json");
+    //   allPlacecastsWithin1km.length.should.eql(2)
+    //   const TwiningsPlacecast = find(allPlacecastsWithin1km, [ 'id', Twinings.id ])
+    //   const StClementDanesPlacecast = find(allPlacecastsWithin1km, [ 'id', StClementDanes.id ])
+    //   TwiningsPlacecast.title.should.equal(Twinings.title)
+    //   StClementDanesPlacecast.title.should.equal(StClementDanes.title)
+    // })
   })
 
   describe(`GET ${PATH}/:id`, () => {
