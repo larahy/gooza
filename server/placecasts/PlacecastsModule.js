@@ -2,7 +2,7 @@ import Module from '../framework/Module'
 import PlacecastsResource from './PlacecastsResource'
 import PlacecastResource from './PlacecastResource'
 import AllPlacecasts from './AllPlacecasts'
-import CreatePlacecast from './createPlacecast'
+import PlacecastHandler from './PlacecastHandler'
 import Mapbox from '../support/mapbox'
 import FindPlacecasts from './findPlacecasts'
 import PlacecastJson from './PlacecastJson'
@@ -15,13 +15,13 @@ export default class PlacecastsModule extends Module {
     const placecastsJson = new PlacecastsJson({placecastJson})
     const allPlacecasts = new AllPlacecasts({log})
     const mapbox = new Mapbox({log, mapboxClient})
-    const createPlacecast = new CreatePlacecast({log, allPlacecasts})
+    const placecastHandler = new PlacecastHandler({log, allPlacecasts})
     const findPlacecasts = new FindPlacecasts({log, allPlacecasts, mapbox})
     this.placecastsResource = new PlacecastsResource({
-      prefix, log, createPlacecast, allPlacecasts, placecastJson, placecastsJson, findPlacecasts
+      prefix, log, placecastHandler, allPlacecasts, placecastJson, placecastsJson, findPlacecasts
     })
     this.placecastResource = new PlacecastResource({
-      prefix, log, allPlacecasts, placecastJson,
+      prefix, log, placecastHandler, allPlacecasts, placecastJson,
     })
   }
 

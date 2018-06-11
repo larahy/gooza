@@ -186,19 +186,40 @@ describe("routes: placecasts", () => {
     });
   });
 
-  describe(`GET ${PATH}/:id`, () => {
-    it("should return a single resource", async () => {
-      const aPlacecast = await chai.request(HOST).get(`${PATH}/1`);
-      aPlacecast.should.have.property('status').with.valueOf('200');
-      aPlacecast.headers.should.have.property('content-type').with.valueOf('application/json');
-      aPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle");
+  describe(`PUT ${PATH}/:id`, () => {
+    const updatesJson = buildPlacecast({
+      title: 'Catdog party shop',
+      s3_audio_filename: 'catdog.mp3',
+    })
+
+    it("should update a single resource", async () => {
+      const updatedPlacecastResponse = await chai.request(HOST).put(`${PATH}/1`).send(updatesJson)
+      const updatedPlacecast = parseBody(updatedPlacecastResponse)
+      updatedPlacecastResponse.status.should.eql(200);
+      updatedPlacecast.title.should.equal('Catdog party shop')
+      updatedPlacecast.s3_audio_filename.should.equal('catdog.mp3')
     });
-    it("should return an error when the requested placecast does not exist", async () => {
+    it("should return an error when the  placecast to update does not exist", async () => {
       try {
-        await chai.request(HOST).get(`${PATH}/999`)
+        await chai.request(HOST).put(`${PATH}/999`).send(updatesJson)
       } catch (error) {
         error.should.have.property('status').with.valueOf('404');
         error.response.body.content.should.eql('The requested placecast does not exist');
+      }
+    });
+    it("does not update a placecast if placecast data is invalid", async () => {
+      const invalidPlacecastJson = {
+        title: "",
+        subtitle: "",
+        coordinates: [-0.187682, 51.472303],
+        s3_audio_file: ""
+      };
+      try {
+        await chai.request(HOST).put(`${PATH}/1`).send(invalidPlacecastJson)
+      } catch (error) {
+        error.should.have.property('status').with.valueOf('422');
+        error.response.body.content.fields.should.deep.eql(['title','subtitle']);
+        error.response.body.content.message.should.eql("Data missing or invalid");
       }
     });
   });

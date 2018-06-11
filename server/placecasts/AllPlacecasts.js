@@ -86,4 +86,26 @@ export default class AllPlacecasts {
       })
   }
 
+  fullUpdateById ({id, placecast}) {
+    const lat = placecast.coordinates[1]
+    const long = placecast.coordinates[0]
+    this.log.info('Updating placecast')
+    return knex("placecasts")
+      .update({
+        title: placecast.title,
+        subtitle: placecast.subtitle,
+        s3_audio_filename: placecast.s3_audio_filename,
+        geom: st.geomFromText(`Point(${long} ${lat})`, 4326)
+      }, ['id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')])
+      .where({ id })
+      .then(placecast => {
+        if (!placecast.length) {
+          throw new NotFoundError("The requested placecast does not exist");
+        }
+        this.log.info('Successfully updated placecast: ' + placecast[0].title)
+        return toPlacecast(placecast[0])
+      })
+
+  }
+
 }

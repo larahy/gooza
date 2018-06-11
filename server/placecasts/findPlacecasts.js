@@ -17,7 +17,6 @@ export default class FindPlacecasts {
         .then((coordinates) => {
           const long = coordinates[0]
           const lat = coordinates[1]
-        console.log('the returned coords', lat, long)
         return this.allPlacecasts.findAll({...params, lat, long})
         })
     }

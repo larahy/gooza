@@ -52,4 +52,18 @@ describe('AllPlacecasts', () => {
     const placecastsWithin20km = await allPlacecasts.findByProximityTo({lat, long, radius: 20000})
     expect(placecastsWithin20km.length).to.equal(3)
   })
+
+  it('updates a placecast in its entirety', async () => {
+    const updatePlacecastJson = {
+      title: "Twinings Tea Party",
+      subtitle: " bla bla",
+      coordinates: [ -0.1128, 51.5133 ],
+      s3_audio_file: "twinings_tea_party.mp3"
+    };
+
+    const originalPlacecast = await allPlacecasts.add({placecast: aPlacecastJson})
+    await allPlacecasts.fullUpdateById({id: originalPlacecast.placecast.id, placecast: updatePlacecastJson})
+    const updatedPlacecast = await allPlacecasts.findOneById({id: originalPlacecast.placecast.id})
+    expect(updatedPlacecast.title).to.equal(updatePlacecastJson.title)
+  })
 })
