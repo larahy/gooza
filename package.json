@@ -15,7 +15,7 @@
   "author": "Lara Inskip",
   "license": "ISC",
   "dependencies": {
-    "aws-sdk": "^2.247.1",
+    "aws-sdk": "^2.252.1",
     "axios": "^0.17.1",
     "babel-cli": "^6.26.0",
     "babel-polyfill": "^6.26.0",

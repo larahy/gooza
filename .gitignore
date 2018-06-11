@@ -27,3 +27,5 @@ build
 package-lock.json
 
 *.sh
+
+s3-test.js
