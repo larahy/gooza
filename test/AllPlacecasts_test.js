@@ -66,4 +66,16 @@ describe('AllPlacecasts', () => {
     const updatedPlacecast = await allPlacecasts.findOneById({id: originalPlacecast.placecast.id})
     expect(updatedPlacecast.title).to.equal(updatePlacecastJson.title)
   })
+
+  it('deletes a placecast', async () => {
+    const originalPlacecast = await allPlacecasts.add({placecast: aPlacecastJson})
+    const noOfDeletions = await allPlacecasts.deleteById({id: originalPlacecast.placecast.id})
+    expect(noOfDeletions).to.equal(1)
+    try {
+      await allPlacecasts.findOneById({id: originalPlacecast.placecast.id})
+    }
+    catch (error) {
+      expect(error.message).to.equal('The requested placecast does not exist')
+    }
+  })
 })

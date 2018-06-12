@@ -223,4 +223,21 @@ describe("routes: placecasts", () => {
       }
     });
   });
+
+  describe(`DEL ${PATH}/:id`, () => {
+    it("should return a single resource", async () => {
+      const Twinings = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
+      const deleteResponse = await chai.request(HOST).del(`${PATH}/${Twinings.id}`);
+      deleteResponse.should.have.property('status').with.valueOf('200');
+      deleteResponse.body.should.eql({});
+    });
+    it("should return an error when the requested placecast does not exist", async () => {
+      try {
+        await chai.request(HOST).del(`${PATH}/999`);
+      } catch (error) {
+        error.should.have.property('status').with.valueOf('404');
+        error.response.body.content.should.eql('The requested placecast does not exist');
+      }
+    });
+  });
 });

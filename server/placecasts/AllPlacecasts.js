@@ -108,4 +108,11 @@ export default class AllPlacecasts {
 
   }
 
+  deleteById ({id}) {
+    this.log.info('deleting placecast by id: ', id)
+    return knex("placecasts")
+      .where({id})
+      .del()
+  }
+
 }

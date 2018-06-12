@@ -51,8 +51,25 @@ export default class PlacecastResource extends Resource {
         }
       })
       .finally(next)
+  }
 
+  del (request, response, next) {
+    const id = request.params.placecastId
+    this.log.info('deleting placecast by id: ', id)
 
+    return this.allPlacecasts.deleteById({id})
+      .then(() => {
+        return respondOk(response)({})
+      })
+      .catch(err => {
+        if (ErrorIs.notFound(err)) {
+          this.log.warn({error: err.message})
+          respondNotFound(response)(err.message)
+        } else {
+          respondInternalServerError(response)()
+        }
+      })
+      .finally(next)
   }
 
   renderPlacecastAsJson (placecast) {
