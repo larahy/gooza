@@ -171,10 +171,11 @@ describe("routes: placecasts", () => {
 
   describe(`GET ${PATH}/:id`, () => {
     it("should return a single resource", async () => {
-      const aPlacecast = await chai.request(HOST).get(`${PATH}/1`);
-      aPlacecast.should.have.property('status').with.valueOf('200');
-      aPlacecast.headers.should.have.property('content-type').with.valueOf('application/json');
-      aPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle");
+      const aPlacecast = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
+      const retrievedPlacecast = await chai.request(HOST).get(`${PATH}/${aPlacecast.id}`);
+      retrievedPlacecast.should.have.property('status').with.valueOf('200');
+      retrievedPlacecast.headers.should.have.property('content-type').with.valueOf('application/json');
+      retrievedPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle");
     });
     it("should return an error when the requested placecast does not exist", async () => {
       try {
@@ -193,7 +194,8 @@ describe("routes: placecasts", () => {
     })
 
     it("should update a single resource", async () => {
-      const updatedPlacecastResponse = await chai.request(HOST).put(`${PATH}/1`).send(updatesJson)
+      const aPlacecast = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
+      const updatedPlacecastResponse = await chai.request(HOST).put(`${PATH}/${aPlacecast.id}`).send(updatesJson)
       const updatedPlacecast = parseBody(updatedPlacecastResponse)
       updatedPlacecastResponse.status.should.eql(200);
       updatedPlacecast.title.should.equal('Catdog party shop')
