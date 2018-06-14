@@ -2,6 +2,7 @@ import halson from 'halson'
 const MapboxClient = require('mapbox')
 import Module from '../framework/Module'
 import PlacecastsModule from '../placecasts/index'
+import UsersModule from '../users/index'
 const serveStatic = require('restify').plugins.serveStatic
 const env = process.env.NODE_ENV || "production";
 const config = require("../../knexfile")[env];
@@ -17,6 +18,7 @@ export default class ApiModule extends Module {
     this.log.info('Starting up API module.')
     const mapboxClient = new MapboxClient(mapboxToken);
     this.placecasts = new PlacecastsModule({prefix, log, mapboxClient})
+    this.users = new UsersModule({prefix, log})
     knex.migrate.latest()
       .then(() => {
         this.log.info('Migrations complete.')
@@ -30,6 +32,7 @@ export default class ApiModule extends Module {
   configureRoutes ({ server }) {
 
     this.placecasts.configureRoutes({ server })
+    this.users.configureRoutes({ server })
 
     server.get({name: 'root', path: this.prefix }, (request, response, next) => {
       let resource = halson({})
@@ -39,6 +42,7 @@ export default class ApiModule extends Module {
           href: `${server.router.render('placecast', { placecastId: '' })}{placecastId}`,
           templated: true
         })
+        .addLink('users', server.router.render('users'))
 
       response.json(resource)
       next()

@@ -14,3 +14,10 @@ export const toPlacecasts = results => {
     .values()
     .value()
 }
+
+export const toUser = record => {
+
+  return chain(record)
+    .mapValues()
+    .value()
+}

@@ -20,13 +20,13 @@ describe('AllUsers', () => {
 
   it('adds a user', async () => {
     const user = await allUsers.add({user: aUserJson})
-    expect(user.first_name).to.equal(aUserJson.first_name)
+    expect(user.user.first_name).to.equal(aUserJson.first_name)
   })
 
   it('retrieves a user by email', async () => {
     const user = await allUsers.add({user: aUserJson})
     const userWithEmail = await allUsers.findByEmail({email: aUserJson.email})
-    expect(userWithEmail.id).to.equal(user.id)
+    expect(userWithEmail.id).to.equal(user.user.id)
   })
 
   it('hashes a users password before adding a user', async () => {
