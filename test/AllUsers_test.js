@@ -17,6 +17,12 @@ describe('AllUsers', () => {
     email: "brenda@example.com",
     password: "brenda"
   };
+  const anotherUserJson = {
+    first_name: "Norman",
+    last_name: "Chan",
+    email: "norman@example.com",
+    password: "norman"
+  };
 
   it('adds a user', async () => {
     const user = await allUsers.add({user: aUserJson})
@@ -36,6 +42,13 @@ describe('AllUsers', () => {
     expect(createdUser.password).to.not.equal(aUserJson.password)
     expect(JSON.parse(createdUser.password)).to.contain.keys("salt", "hash")
 
+  })
+
+  it('returns a list of all users', async () => {
+    await allUsers.add({user: aUserJson})
+    await allUsers.add({user: anotherUserJson})
+    const retrievedList = await allUsers.findAll()
+    expect(retrievedList.length).to.equal(2)
   })
 
 })

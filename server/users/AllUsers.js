@@ -34,7 +34,7 @@ export default class AllUsers {
   }
 
   findByEmail({email}) {
-    this.log.info('Retrieving user by email')
+    this.log.info('Retrieving user by email: ', email)
     return knex("users")
       .select('id', 'first_name', 'last_name', 'email', 'password')
       .where({email})
@@ -44,6 +44,14 @@ export default class AllUsers {
         }
         this.log.info('Successfully retrieved user: ' + user.email)
         return user[0]
+      })
+  }
+
+  findAll () {
+    this.log.info('Finding all users')
+    return knex.select('*').from('users')
+      .then(results => {
+        return results
       })
   }
 

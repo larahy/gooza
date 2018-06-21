@@ -1,4 +1,6 @@
 import ApiModule from './api'
+import AuthenticationModule from './authentication'
+
 import restify from 'restify'
 const corsMiddleware = require('restify-cors-middleware')
 const cors = corsMiddleware({
@@ -21,9 +23,10 @@ export default class Server {
       this.server.use(restify.plugins.fullResponse())
 
     const api = new ApiModule({log, mapboxToken})
-    log.info('Setting up routes')
-    api.configureRoutes({server: this.server})
+    const authentication = new AuthenticationModule({log})
 
+    api.configureRoutes({server: this.server})
+    authentication.configureMiddleware({server: this.server})
     this.initialisationPromise = api.onInitialisationComplete()
   }
 

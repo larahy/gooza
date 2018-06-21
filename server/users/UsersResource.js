@@ -12,6 +12,10 @@ export default class UsersResource extends Resource {
     this.log = log
     this.allUsers = allUsers
     this.userJson = userJson
+    this.authentication = {
+      'get': 'local'
+    }
+
   }
 
   post(request, response, next) {
@@ -24,6 +28,20 @@ export default class UsersResource extends Resource {
       })
       .finally(next)
   }
+
+  get(request, response, next) {
+    // const userSession = request.user
+    // console.log(userSession)
+    return this.allUsers.findAll()
+      .then((results) => {
+        return response.send(200, results)
+      })
+      .catch(() => {
+        respondInternalServerError(response)()
+      })
+      .finally(next)
+  }
+
 
   renderUserAsJson(user) {
     return this.userJson.render(user, {router: this.router})

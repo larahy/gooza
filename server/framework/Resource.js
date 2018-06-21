@@ -1,4 +1,5 @@
 import Module from './Module'
+import passport from 'passport'
 
 export default class Resource extends Module {
   constructor ({prefix, log, name, path}) {
@@ -12,6 +13,7 @@ export default class Resource extends Module {
     this.supportedMethods = [
       'get', 'put', 'post', 'del', 'patch', 'head', 'opts'
     ];
+    this.authentication = {}
   }
 
   configureRoutes ({server}) {
@@ -28,13 +30,25 @@ export default class Resource extends Module {
             isFirstMethod = false
             opts = {...opts, name: this.name}
           }
+          if (this.authentication[method]) {
+            this.log.debug({
+              method,
+              name: this.name,
+              path: this.path,
+              authentication: this.authentication[method]
+            }, 'Configuring authenticated endpoint')
 
-          this.log.info({
+            server[method](opts, passport.authenticate(this.authentication[method], {session: false}), methodMethod.bind(this))
+          } else {
+            this.log.debug({
               method,
               name: this.name,
               path: this.path
             }, 'Configuring unauthenticated endpoint')
+
             server[method](opts, methodMethod.bind(this))
+          }
+
         }
       })
 
