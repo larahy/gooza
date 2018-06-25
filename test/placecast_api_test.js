@@ -4,76 +4,82 @@ import halson from 'halson'
 const port = process.env.PORT || 8081;
 const HOST = `http://localhost:${port}`;
 const PATH = "/api/v1/placecasts";
+import {buildPlacecast, buildUser} from "./helpers/builders";
+import {loggedInUserTokenAndId} from "./helpers/sessions";
 
 const chai = require("chai");
 const should = chai.should();
 const chaiHttp = require("chai-http");
 chai.use(chaiHttp);
 
-const buildPlacecast = ({
-  title = 'Twinings Tea Shop',
-  subtitle = 'The Twinings logo, a simple, gold sign bearing the company name, has remained unchanged since 1787.',
-  coordinates = [ -0.1128, 51.5133 ],
-  s3_audio_filename = 'twinings_tea.mp3'
-} = {}) => {
-  return {
-    title,
-    subtitle,
-    coordinates,
-    s3_audio_filename
-  }
-}
-
 const parseBody = response => halson(response.body.content)
-const TwiningsTeaShopJson = buildPlacecast({})
 
 const anotherPlacecastJson = buildPlacecast({
     title: 'Potteries and Piggeries',
     s3_audio_filename: 'potteries_and_piggeries.mp3',
-    subtitle: 'This kiln, built in about 1824, is all that is left of a slum that was once one of the worst places to live in London.',
-    coordinates: [-0.2114, 51.5104]
+    coordinates: [-0.2114, 51.5104],
   })
 
 describe("routes: placecasts", () => {
   describe(`POST ${PATH}`, () => {
-    it("should add a new placecast", async () => {
-      const newPlacecast = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson);
+    it("should add a new placecast if the session user is the same as the placecast user", async () => {
+      //
+      const credentials = await loggedInUserTokenAndId()
+      const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
+
+
+      const newPlacecast = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson);
       newPlacecast.status.should.eql(201);
       newPlacecast.should.have.header("location");
       newPlacecast.type.should.eql("application/json");
-      newPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle");
+      newPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle", "user_id");
     });
     it("does not add a new placecast if one already exists with that title", async () => {
-      await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson);
+      const credentials = await loggedInUserTokenAndId()
+      const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
+
+      await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson);
       try {
-        await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson)
+        await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson);
       } catch (error) {
         error.should.have.property('status').with.valueOf('409');
         error.response.body.content.should.eql(`A placecast with that title already exists`);
       }
     });
     it("does not add a new placecast if placecast data is invalid", async () => {
-      const invalidPlacecast = {
-        title: "",
-        subtitle: "",
-        coordinates: [-0.187682, 51.472303],
-        s3_audio_file: ""
-      };
+
+      const credentials = await loggedInUserTokenAndId()
+      const invalidPlacecastJson = buildPlacecast({title: "", subtitle: "", user_id: credentials.id })
       try {
-        await chai.request(HOST).post(`${PATH}`).send(invalidPlacecast)
+        await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(invalidPlacecastJson)
       } catch (error) {
         error.should.have.property('status').with.valueOf('422');
         error.response.body.content.fields.should.deep.eql(['title','subtitle']);
         error.response.body.content.message.should.eql("Data missing or invalid");
       }
     });
+    it('does not create placecast if the session user is not the same as the placecast user', async () => {
+      const credentials = await loggedInUserTokenAndId()
+      const TwiningsTeaShopJson = buildPlacecast({user_id: 333})
+
+      try {
+        await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson);
+      } catch (error) {
+        error.should.have.property('status').with.valueOf('403');
+        error.response.body.content.should.eql('Unauthorised Request');
+      }
+    })
   })
 
   describe(`GET ${PATH}`, () => {
     it('returns a list of all placecasts', async () => {
+      const credentials = await loggedInUserTokenAndId()
+      const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
+      const anotherPlacecastJson = buildPlacecast({user_id: credentials.id, title: 'Potteries and Piggeries', s3_audio_filename: 'potteries_and_piggeries.mp3'})
 
-      const aPlacecast = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
-      await chai.request(HOST).post(`${PATH}`).send(anotherPlacecastJson).then(parseBody)
+
+      const aPlacecast = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
+      await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(anotherPlacecastJson).then(parseBody)
 
       const allPlacecastsResponse = await chai.request(HOST).get(`${PATH}`)
 
@@ -89,12 +95,15 @@ describe("routes: placecasts", () => {
       firstPlacecast._links.should.deep.equal(aPlacecast._links)
     })
     it('returns a list of all placecasts with matching titles when they exist', async () => {
-      const HamleysShopJson = buildPlacecast({
-        title: 'Hamleys Toy Shop',
-        s3_audio_filename: 'hamleys_toys.mp3'
-      })
-      const Twinings = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
-      const Hamleys = await chai.request(HOST).post(`${PATH}`).send(HamleysShopJson).then(parseBody)
+
+      const credentials = await loggedInUserTokenAndId()
+      const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
+      const anotherPlacecastJson = buildPlacecast({user_id: credentials.id, title: 'Hamleys Toy Shop', s3_audio_filename: 'hamleys_toys.mp3'})
+
+
+      const Twinings = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
+      const Hamleys = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(anotherPlacecastJson).then(parseBody)
+
       const allPlacecastsWithShopInTitleResponse = await chai.request(HOST).get(`${PATH}`).query({title: 'shop'})
       const allPlacecastsWithShopInTitle = parseBody(allPlacecastsWithShopInTitleResponse).getEmbeds('placecasts')
       allPlacecastsWithShopInTitleResponse.status.should.eql(200);
@@ -113,17 +122,24 @@ describe("routes: placecasts", () => {
       allPlacecastsWithBrendaInTitle.length.should.eql(0)
     })
     it('returns a list of all placecasts within a specified radius of a point when they exist', async () => {
+
+      const credentials = await loggedInUserTokenAndId()
+      const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
+
       // St Clement Danes is next door to Twinings Tea Shop
       const StClementDanesJson = buildPlacecast({
+        user_id: credentials.id,
         title: 'St Clement Danes',
         s3_audio_filename: 'st_clement_danes.mp3',
-        coordinates: [-0.113898, 51.513107 ]
-      })
+        coordinates: [-0.113898, 51.513107 ]})
+
+
+      const Twinings = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
+      const StClementDanes = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(StClementDanesJson).then(parseBody)
       const long = -0.1132
       const lat = 51.5137
       const radius = 1000;
-      const Twinings = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
-      const StClementDanes = await chai.request(HOST).post(`${PATH}`).send(StClementDanesJson).then(parseBody)
+
       const allPlacecastsWithin1kmResponse = await chai.request(HOST).get(`${PATH}`).query({lat, long, radius})
       const allPlacecastsWithin1km = parseBody(allPlacecastsWithin1kmResponse).getEmbeds('placecasts')
       allPlacecastsWithin1kmResponse.status.should.eql(200);
@@ -147,16 +163,20 @@ describe("routes: placecasts", () => {
       allPlacecastsWithin200kmsOfOutback.length.should.eql(0)
     })
     it('returns a list of all placecasts within a specified radius of an address when they exist', async () => {
+
+      const credentials = await loggedInUserTokenAndId()
+      const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
+
       // St Clement Danes is next door to Twinings Tea Shop
       const StClementDanesJson = buildPlacecast({
+        user_id: credentials.id,
         title: 'St Clement Danes',
         s3_audio_filename: 'st_clement_danes.mp3',
-        coordinates: [-0.113898, 51.513107]
-      })
+        coordinates: [-0.113898, 51.513107 ]})
+      const Twinings = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
+      const StClementDanes = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(StClementDanesJson).then(parseBody)
       const address = 'St Clement Danes Church, Strand, London, UK'
       const radius = 1000;
-      const Twinings = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
-      const StClementDanes = await chai.request(HOST).post(`${PATH}`).send(StClementDanesJson).then(parseBody)
       const allPlacecastsWithin1kmResponse = await chai.request(HOST).get(`${PATH}`).query({address, radius})
       const allPlacecastsWithin1km = parseBody(allPlacecastsWithin1kmResponse).getEmbeds('placecasts')
       allPlacecastsWithin1kmResponse.status.should.eql(200);
@@ -171,7 +191,9 @@ describe("routes: placecasts", () => {
 
   describe(`GET ${PATH}/:id`, () => {
     it("should return a single resource", async () => {
-      const aPlacecast = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
+      const credentials = await loggedInUserTokenAndId()
+      const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
+      const aPlacecast = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
       const retrievedPlacecast = await chai.request(HOST).get(`${PATH}/${aPlacecast.id}`);
       retrievedPlacecast.should.have.property('status').with.valueOf('200');
       retrievedPlacecast.headers.should.have.property('content-type').with.valueOf('application/json');
@@ -194,7 +216,9 @@ describe("routes: placecasts", () => {
     })
 
     it("should update a single resource", async () => {
-      const aPlacecast = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
+      const credentials = await loggedInUserTokenAndId()
+      const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
+      const aPlacecast = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
       const updatedPlacecastResponse = await chai.request(HOST).put(`${PATH}/${aPlacecast.id}`).send(updatesJson)
       const updatedPlacecast = parseBody(updatedPlacecastResponse)
       updatedPlacecastResponse.status.should.eql(200);
@@ -228,7 +252,9 @@ describe("routes: placecasts", () => {
 
   describe(`DEL ${PATH}/:id`, () => {
     it("should return a single resource", async () => {
-      const Twinings = await chai.request(HOST).post(`${PATH}`).send(TwiningsTeaShopJson).then(parseBody)
+      const credentials = await loggedInUserTokenAndId()
+      const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
+      const Twinings = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
       const deleteResponse = await chai.request(HOST).del(`${PATH}/${Twinings.id}`);
       deleteResponse.should.have.property('status').with.valueOf('200');
       deleteResponse.body.should.eql({});

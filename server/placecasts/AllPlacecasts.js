@@ -5,7 +5,7 @@ const config = require("../../knexfile")[env];
 const knex = require("knex")(config);
 const knexPostgis = require('knex-postgis');
 const st = knexPostgis(knex);
-import {toPlacecasts, toPlacecast} from "../support/mappers";
+import {toRecords, toRecord} from "../support/mappers";
 
 export default class AllPlacecasts {
 
@@ -22,10 +22,11 @@ export default class AllPlacecasts {
       title: placecast.title,
       subtitle: placecast.subtitle,
       s3_audio_filename: placecast.s3_audio_filename,
-      geom: st.geomFromText(`Point(${long} ${lat})`, 4326)
-    }, ['id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')])
+      geom: st.geomFromText(`Point(${long} ${lat})`, 4326),
+      user_id: placecast.user_id
+    }, ['id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'), 'user_id'])
       .then(placecast => {
-        return toPlacecast(placecast[0])
+        return toRecord(placecast[0])
       })
       .then(placecast => {
         this.log.info('Successfully created placecast: ' + placecast.title)
@@ -44,22 +45,22 @@ export default class AllPlacecasts {
       return this.findByProximityTo({lat, long, radius})
     }
     this.log.info('Finding all placecasts')
-    return knex.select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')).from('placecasts')
+    return knex.select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'), 'user_id').from('placecasts')
       .then(results => {
-        return toPlacecasts(results)
+        return toRecords(results)
       })
   }
 
   findOneById ({id}) {
     this.log.info('Selecting placecast by ID')
     return knex("placecasts")
-      .select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'))
+      .select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'), 'user_id')
       .where({ id })
       .then(placecast => {
         if (!placecast.length) {
           throw new NotFoundError("The requested placecast does not exist");
         }
-        const returnable = toPlacecast(placecast[0])
+        const returnable = toRecord(placecast[0])
         return returnable
       })
   }
@@ -68,10 +69,10 @@ export default class AllPlacecasts {
 
     this.log.info('Selecting placecasts by title')
     return knex("placecasts")
-      .select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'))
+      .select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'), 'user_id')
       .whereRaw('LOWER(title) LIKE ?', '%'+title.toLowerCase()+'%')
       .then(results => {
-        return toPlacecasts(results)
+        return toRecords(results)
       })
   }
 
@@ -79,10 +80,10 @@ export default class AllPlacecasts {
 
     this.log.info('Selecting placecasts by proximity')
     return knex("placecasts")
-      .select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'))
+      .select('id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'), 'user_id')
       .whereRaw(`ST_DWithin(geom, ST_MakePoint(${long},${lat})::geography, ${radius})`)
       .then(results => {
-        return toPlacecasts(results)
+        return toRecords(results)
       })
   }
 
@@ -96,14 +97,14 @@ export default class AllPlacecasts {
         subtitle: placecast.subtitle,
         s3_audio_filename: placecast.s3_audio_filename,
         geom: st.geomFromText(`Point(${long} ${lat})`, 4326)
-      }, ['id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom')])
+      }, ['id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'), 'user_id'])
       .where({ id })
       .then(placecast => {
         if (!placecast.length) {
           throw new NotFoundError("The requested placecast does not exist");
         }
         this.log.info('Successfully updated placecast: ' + placecast[0].title)
-        return toPlacecast(placecast[0])
+        return toRecord(placecast[0])
       })
 
   }

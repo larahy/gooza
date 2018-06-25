@@ -2,7 +2,7 @@ import Resource from '../framework/Resource'
 import {
   ErrorIs,
 } from '../support/errors'
-import {respondOk, respondCreated, respondConflict, respondInvalid, respondInternalServerError} from "../support/responses";
+import {respondOk, respondCreated, respondConflict, respondInvalid, respondInternalServerError, respondForbidden} from "../support/responses";
 
 export default class PlacecastsResource extends Resource {
   constructor({prefix, log, placecastHandler, allPlacecasts, placecastJson, placecastsJson, findPlacecasts}) {
@@ -15,10 +15,19 @@ export default class PlacecastsResource extends Resource {
     this.placecastJson = placecastJson
     this.placecastsJson = placecastsJson
     this.findPlacecasts = findPlacecasts
+    this.authentication = {
+      'post': 'token'
+    }
   }
 
   post(request, response, next) {
 
+    const sessionUser = request.user
+    const userId = request.body.user_id
+    this.log.info('Creating placecast for ', { userId: userId })
+
+
+    if (userId === sessionUser.id) {
     return this.placecastHandler.create({placecast: request.body})
       .then(({placecast}) => this.renderPlacecastAsJson.bind(this)(placecast))
       .then(respondCreated(response))
@@ -35,6 +44,11 @@ export default class PlacecastsResource extends Resource {
         }
       })
       .finally(next)
+    } else {
+      return Promise.try(respondForbidden(response))
+        .catch(warnOfError('Unauthorised request to POST new placecast for user', this.log))
+        .finally(next)
+    }
   }
 
   get(request, response, next) {

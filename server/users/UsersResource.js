@@ -24,7 +24,8 @@ export default class UsersResource extends Resource {
     return this.allUsers.add({user: request.body})
       .then(({user}) => this.renderUserAsJson.bind(this)(user))
       .then(respondCreated(response))
-      .catch(() => {
+      .catch((error) => {
+      console.log(error)
         respondInternalServerError(response)()
       })
       .finally(next)

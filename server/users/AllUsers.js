@@ -4,7 +4,7 @@ const config = require("../../knexfile")[env];
 const knex = require("knex")(config);
 import Promise from 'bluebird'
 import { hash } from 'passport-local-authenticate'
-import {toUser, toUsers} from "../support/mappers";
+import {toRecord, toRecords} from "../support/mappers";
 
 export default class AllUsers {
 
@@ -25,7 +25,7 @@ export default class AllUsers {
         }, ['id', 'first_name', 'last_name', 'email'])
       })
       .then(user => {
-        return toUser(user[0])
+        return toRecord(user[0])
       })
       .then(user => {
         this.log.info('Successfully created user: ' + user.email)
@@ -65,7 +65,7 @@ export default class AllUsers {
     this.log.info('Finding all users')
     return knex.select('*').from('users')
       .then(results => {
-        return toUsers(results)
+        return toRecords(results)
       })
   }
 

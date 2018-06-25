@@ -1,7 +1,7 @@
 import { database, log } from './spec_helper'
 import { expect } from 'chai'
 import { head } from 'lodash'
-
+import {buildPlacecast} from "./helpers/builders";
 import AllPlacecasts from '../server/placecasts/AllPlacecasts'
 
 describe('AllPlacecasts', () => {
@@ -11,26 +11,19 @@ describe('AllPlacecasts', () => {
     allPlacecasts = new AllPlacecasts({log})
   })
 
-  const aPlacecastJson = {
-    title: "Twinings Tea Shop",
-    subtitle: "The Twinings logo, a simple, gold sign bearing the company name, has remained unchanged since 1787, \n" +
-    "making it the oldest corporate logo still in use. In 1837 Queen Victoria granted the company a royal warrant, a merit \n" +
-    "which has given Twinings the honor of providing tea to the royal family ever since. ",
-    coordinates: [ -0.1128, 51.5133 ],
-    s3_audio_file: "twinings_tea.mp3"
-  };
+  const aPlacecastJson = buildPlacecast({});
 
-  const anotherPlacecastJson = {
+  const anotherPlacecastJson = buildPlacecast({
     title: "Hamleys Toy Shop",
-    subtitle: " bla bla",
     coordinates: [-0.1402, 51.5128],
-    s3_audio_file: "hamleys_toys.mp3"
-  };
+    s3_audio_filename: "hamleys_toys.mp3",
+  });
 
   it('adds a placecast', async () => {
     const placecast = await allPlacecasts.add({placecast: aPlacecastJson})
     const createdPlacecast = await allPlacecasts.findOneById({id: placecast.placecast.id})
     expect(createdPlacecast.title).to.equal(aPlacecastJson.title)
+    expect(createdPlacecast.user_id).to.equal(aPlacecastJson.user_id)
   })
 
   it('selects placecasts by title', async () => {
@@ -58,13 +51,14 @@ describe('AllPlacecasts', () => {
       title: "Twinings Tea Party",
       subtitle: " bla bla",
       coordinates: [ -0.1128, 51.5133 ],
-      s3_audio_file: "twinings_tea_party.mp3"
+      s3_audio_file: "twinings_tea_party.mp3",
     };
 
     const originalPlacecast = await allPlacecasts.add({placecast: aPlacecastJson})
     await allPlacecasts.fullUpdateById({id: originalPlacecast.placecast.id, placecast: updatePlacecastJson})
     const updatedPlacecast = await allPlacecasts.findOneById({id: originalPlacecast.placecast.id})
     expect(updatedPlacecast.title).to.equal(updatePlacecastJson.title)
+    expect(updatedPlacecast.user_id).to.equal(aPlacecastJson.user_id)
   })
 
   it('deletes a placecast', async () => {

@@ -1,31 +1,16 @@
 import { chain } from 'lodash'
 
 
-export const toPlacecast = record => {
+export const toRecord = record => {
 
   return chain(record)
     .mapValues()
     .value()
 }
 
-export const toPlacecasts = results => {
+export const toRecords = results => {
   return chain(results)
-    .map(toPlacecast)
-    .values()
-    .value()
-}
-
-export const toUser = record => {
-
-  return chain(record)
-    .mapValues()
-    .value()
-}
-
-
-export const toUsers = results => {
-  return chain(results)
-    .map(toUser)
+    .map(toRecord)
     .values()
     .value()
 }
