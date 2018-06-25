@@ -4,6 +4,8 @@ import Server from './Server'
 const port = process.env.PORT || 8081;
 const logLevel = process.env.LOG_LEVEL || 'info'
 const mapboxToken = process.env.MAPBOX_TOKEN
+const tokenSecret = process.env.TOKEN_SECRET
+
 const log = bunyan.createLogger({
   name: 'server',
   level: logLevel
@@ -11,7 +13,8 @@ const log = bunyan.createLogger({
 const server = new Server({
   port,
   log,
-  mapboxToken
+  mapboxToken,
+  tokenSecret
 })
 
 server.onInitialisationComplete()

@@ -5,15 +5,16 @@ import {
 import {respondOk, respondCreated, respondConflict, respondInvalid, respondInternalServerError} from "../support/responses";
 
 export default class UsersResource extends Resource {
-  constructor({prefix, log, allUsers, userJson}) {
+  constructor({prefix, log, allUsers, userJson, usersJson}) {
     super({prefix, name: 'users', path: '/users'})
 
     log.info('Starting up resource: ' + this.name)
     this.log = log
     this.allUsers = allUsers
     this.userJson = userJson
+    this.usersJson = usersJson
     this.authentication = {
-      'get': 'local'
+      'get': 'token'
     }
 
   }
@@ -30,13 +31,10 @@ export default class UsersResource extends Resource {
   }
 
   get(request, response, next) {
-    // const userSession = request.user
-    // console.log(userSession)
     return this.allUsers.findAll()
-      .then((results) => {
-        return response.send(200, results)
-      })
-      .catch(() => {
+      .then(this.renderUsersAsJson.bind(this))
+      .then(respondOk(response))
+      .catch(err => {
         respondInternalServerError(response)()
       })
       .finally(next)
@@ -45,6 +43,10 @@ export default class UsersResource extends Resource {
 
   renderUserAsJson(user) {
     return this.userJson.render(user, {router: this.router})
+  }
+
+  renderUsersAsJson (users) {
+    return this.usersJson.render(users, { router: this.router })
   }
 
 }

@@ -4,7 +4,7 @@ const config = require("../../knexfile")[env];
 const knex = require("knex")(config);
 import Promise from 'bluebird'
 import { hash } from 'passport-local-authenticate'
-import {toUser} from "../support/mappers";
+import {toUser, toUsers} from "../support/mappers";
 
 export default class AllUsers {
 
@@ -42,7 +42,21 @@ export default class AllUsers {
         if (!user.length) {
           throw new NotFoundError("The requested user does not exist");
         }
-        this.log.info('Successfully retrieved user: ' + user.email)
+        this.log.info('Successfully retrieved user: ' + user[0].email)
+        return user[0]
+      })
+  }
+
+  findById({id}) {
+    this.log.info('Retrieving user by id: ', id)
+    return knex("users")
+      .select('id', 'first_name', 'last_name', 'email')
+      .where({id})
+      .then(user => {
+        if (!user.length) {
+          throw new NotFoundError("The requested user does not exist");
+        }
+        this.log.info('Successfully retrieved user: ' + user[0].email)
         return user[0]
       })
   }
@@ -51,7 +65,7 @@ export default class AllUsers {
     this.log.info('Finding all users')
     return knex.select('*').from('users')
       .then(results => {
-        return results
+        return toUsers(results)
       })
   }
 

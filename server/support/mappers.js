@@ -21,3 +21,11 @@ export const toUser = record => {
     .mapValues()
     .value()
 }
+
+
+export const toUsers = results => {
+  return chain(results)
+    .map(toUser)
+    .values()
+    .value()
+}

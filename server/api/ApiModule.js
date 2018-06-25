@@ -3,6 +3,7 @@ const MapboxClient = require('mapbox')
 import Module from '../framework/Module'
 import PlacecastsModule from '../placecasts/index'
 import UsersModule from '../users/index'
+import SessionModule from '../session/index'
 const serveStatic = require('restify').plugins.serveStatic
 const env = process.env.NODE_ENV || "production";
 const config = require("../../knexfile")[env];
@@ -19,6 +20,7 @@ export default class ApiModule extends Module {
     const mapboxClient = new MapboxClient(mapboxToken);
     this.placecasts = new PlacecastsModule({prefix, log, mapboxClient})
     this.users = new UsersModule({prefix, log})
+    this.session = new SessionModule({prefix, log})
     knex.migrate.latest()
       .then(() => {
         this.log.info('Migrations complete.')
@@ -33,6 +35,7 @@ export default class ApiModule extends Module {
 
     this.placecasts.configureRoutes({ server })
     this.users.configureRoutes({ server })
+    this.session.configureRoutes({ server })
 
     server.get({name: 'root', path: this.prefix }, (request, response, next) => {
       let resource = halson({})
@@ -43,6 +46,7 @@ export default class ApiModule extends Module {
           templated: true
         })
         .addLink('users', server.router.render('users'))
+        .addLink('session', server.router.render('session'))
 
       response.json(resource)
       next()

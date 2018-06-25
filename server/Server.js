@@ -9,8 +9,9 @@ const cors = corsMiddleware({
   allowHeaders: ['API-Token'],
   exposeHeaders: ['API-Token-Expiry']
 })
+import Tokens from './authentication/Tokens'
 export default class Server {
-  constructor ({port, log, mapboxToken}) {
+  constructor ({port, log, mapboxToken, tokenSecret}) {
 
     this.port = port
     this.log = log
@@ -23,7 +24,8 @@ export default class Server {
       this.server.use(restify.plugins.fullResponse())
 
     const api = new ApiModule({log, mapboxToken})
-    const authentication = new AuthenticationModule({log})
+    const tokens = new Tokens({log, tokenSecret})
+    const authentication = new AuthenticationModule({log, tokens})
 
     api.configureRoutes({server: this.server})
     authentication.configureMiddleware({server: this.server})
