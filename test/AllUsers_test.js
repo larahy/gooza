@@ -48,7 +48,7 @@ describe('AllUsers', () => {
     await allUsers.add({user: aUserJson})
     await allUsers.add({user: anotherUserJson})
     const retrievedList = await allUsers.findAll()
-    expect(retrievedList.length).to.equal(2)
+    expect(retrievedList.length).to.equal(3)
   })
 
 })

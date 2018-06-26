@@ -51,7 +51,7 @@ describe("routes: users", () => {
       allUsersResponse.status.should.eql(200);
       allUsersResponse.type.should.eql("application/json");
       const allUsers = parseBody(allUsersResponse).getEmbeds('users')
-      allUsers.should.have.length(1)
+      allUsers.should.have.length(2)
     })
     it('does not return a list of all users if request user is not authenticated', async () => {
       try {

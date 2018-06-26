@@ -3,15 +3,18 @@ import { expect } from 'chai'
 import { head } from 'lodash'
 import {buildPlacecast} from "./helpers/builders";
 import AllPlacecasts from '../server/placecasts/AllPlacecasts'
+import AllUsers from '../server/users/AllUsers'
 
 describe('AllPlacecasts', () => {
   let allPlacecasts
+  let allUsers
+  let catdogId
 
-  beforeEach(() => {
+  beforeEach(async () => {
     allPlacecasts = new AllPlacecasts({log})
+    allUsers = new AllUsers({log})
+    catdogId = await allUsers.findByEmail({email: 'catdog@gmail.com'})
   })
-
-  const aPlacecastJson = buildPlacecast({});
 
   const anotherPlacecastJson = buildPlacecast({
     title: "Hamleys Toy Shop",
@@ -20,6 +23,7 @@ describe('AllPlacecasts', () => {
   });
 
   it('adds a placecast', async () => {
+    const aPlacecastJson = buildPlacecast({user_id: catdogId.id});
     const placecast = await allPlacecasts.add({placecast: aPlacecastJson})
     const createdPlacecast = await allPlacecasts.findOneById({id: placecast.placecast.id})
     expect(createdPlacecast.title).to.equal(aPlacecastJson.title)
@@ -27,6 +31,14 @@ describe('AllPlacecasts', () => {
   })
 
   it('selects placecasts by title', async () => {
+    const anotherPlacecastJson = buildPlacecast({
+      title: "Hamleys Toy Shop",
+      coordinates: [-0.1402, 51.5128],
+      s3_audio_filename: "hamleys_toys.mp3",
+      user_id: catdogId.id
+    });
+
+    const aPlacecastJson = buildPlacecast({user_id: catdogId.id});
     await allPlacecasts.add({placecast: aPlacecastJson})
     await allPlacecasts.add({placecast: anotherPlacecastJson})
     const placecastsWithShopInTitle = await allPlacecasts.findByTitle({title: 'shop'})
@@ -36,6 +48,13 @@ describe('AllPlacecasts', () => {
   it('selects all placecasts within a given radius of a set of coordinates', async () => {
     const long = 0.1383
     const lat = 51.5666
+    const aPlacecastJson = buildPlacecast({user_id: catdogId.id});
+    const anotherPlacecastJson = buildPlacecast({
+      title: "Hamleys Toy Shop",
+      coordinates: [-0.1402, 51.5128],
+      s3_audio_filename: "hamleys_toys.mp3",
+      user_id: catdogId.id
+    });
 
     await allPlacecasts.add({placecast: aPlacecastJson})
     await allPlacecasts.add({placecast: anotherPlacecastJson})
@@ -52,8 +71,9 @@ describe('AllPlacecasts', () => {
       subtitle: " bla bla",
       coordinates: [ -0.1128, 51.5133 ],
       s3_audio_file: "twinings_tea_party.mp3",
+      user_id: catdogId.id
     };
-
+    const aPlacecastJson = buildPlacecast({user_id: catdogId.id});
     const originalPlacecast = await allPlacecasts.add({placecast: aPlacecastJson})
     await allPlacecasts.fullUpdateById({id: originalPlacecast.placecast.id, placecast: updatePlacecastJson})
     const updatedPlacecast = await allPlacecasts.findOneById({id: originalPlacecast.placecast.id})
@@ -62,6 +82,7 @@ describe('AllPlacecasts', () => {
   })
 
   it('deletes a placecast', async () => {
+    const aPlacecastJson = buildPlacecast({user_id: catdogId.id});
     const originalPlacecast = await allPlacecasts.add({placecast: aPlacecastJson})
     const noOfDeletions = await allPlacecasts.deleteById({id: originalPlacecast.placecast.id})
     expect(noOfDeletions).to.equal(1)
