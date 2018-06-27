@@ -1,6 +1,6 @@
 import Resource from '../framework/Resource'
 import {
-  ErrorIs,
+  ErrorIs, warnOfError
 } from '../support/errors'
 import {respondOk, respondCreated, respondConflict, respondInvalid, respondInternalServerError, respondForbidden} from "../support/responses";
 
@@ -46,7 +46,7 @@ export default class PlacecastsResource extends Resource {
       .finally(next)
     } else {
       return Promise.try(respondForbidden(response))
-        .catch(warnOfError('Unauthorised request to POST new placecast for user', this.log))
+        .catch(warnOfError('Unauthorised request to create new placecast for user', this.log))
         .finally(next)
     }
   }

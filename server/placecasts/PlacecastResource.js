@@ -2,6 +2,7 @@ import Resource from '../framework/Resource'
 import {respondOk, respondNotFound, respondInternalServerError, respondInvalid} from "../support/responses";
 import {
   ErrorIs,
+  warnOfError
 } from '../support/errors'
 
 export default class PlacecastResource extends Resource {
@@ -13,6 +14,9 @@ export default class PlacecastResource extends Resource {
     this.allPlacecasts = allPlacecasts
     this.placecastJson = placecastJson
     this.placecastHandler = placecastHandler
+    this.authentication = {
+      'put': 'token'
+    }
   }
 
   get (request, response, next) {
@@ -32,10 +36,16 @@ export default class PlacecastResource extends Resource {
   }
 
   put (request, response, next) {
-    const placecast = request.body
+
+
+    const sessionUser = request.user
     const id = request.params.placecastId
+    const placecast = request.body
+    const userId = placecast.user_id
+
     this.log.info('updating placecast by id: ', id)
 
+    if (userId === sessionUser.id) {
     return this.placecastHandler.update({placecast, id})
       .then(this.renderPlacecastAsJson.bind(this))
       .then(respondOk(response))
@@ -51,6 +61,11 @@ export default class PlacecastResource extends Resource {
         }
       })
       .finally(next)
+    } else {
+      return Promise.try(respondForbidden(response))
+        .catch(warnOfError('Unauthorised request to update placecast for user', this.log))
+        .finally(next)
+    }
   }
 
   del (request, response, next) {

@@ -96,7 +96,8 @@ export default class AllPlacecasts {
         title: placecast.title,
         subtitle: placecast.subtitle,
         s3_audio_filename: placecast.s3_audio_filename,
-        geom: st.geomFromText(`Point(${long} ${lat})`, 4326)
+        geom: st.geomFromText(`Point(${long} ${lat})`, 4326),
+        user_id: placecast.user_id
       }, ['id', 'title', 'subtitle', 's3_audio_filename', st.asGeoJSON('geom'), 'user_id'])
       .where({ id })
       .then(placecast => {

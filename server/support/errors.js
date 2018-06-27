@@ -20,3 +20,10 @@ export class NotFoundError extends Error {
     this.code = NOT_FOUND
   }
 }
+
+export const warnOfError = (action, log) => error => {
+  log.warn({
+    error,
+    stack: error.stack
+  }, `Failed while ${action}.`)
+}

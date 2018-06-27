@@ -210,38 +210,47 @@ describe("routes: placecasts", () => {
   });
 
   describe(`PUT ${PATH}/:id`, () => {
-    const updatesJson = buildPlacecast({
-      title: 'Catdog party shop',
-      s3_audio_filename: 'catdog.mp3',
-    })
 
-    it("should update a single resource", async () => {
+    it("should only update a resource when the session user is the same as the placecast user", async () => {
       const credentials = await loggedInUserTokenAndId()
+      const updatesJson = buildPlacecast({
+        title: 'Catdog party shop',
+        s3_audio_filename: 'catdog.mp3',
+        user_id: credentials.id
+      })
       const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
       const aPlacecast = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
-      const updatedPlacecastResponse = await chai.request(HOST).put(`${PATH}/${aPlacecast.id}`).send(updatesJson)
+      const updatedPlacecastResponse = await chai.request(HOST).put(`${PATH}/${aPlacecast.id}`).set('X-Token', credentials.token).send(updatesJson)
       const updatedPlacecast = parseBody(updatedPlacecastResponse)
       updatedPlacecastResponse.status.should.eql(200);
       updatedPlacecast.title.should.equal('Catdog party shop')
       updatedPlacecast.s3_audio_filename.should.equal('catdog.mp3')
     });
     it("should return an error when the  placecast to update does not exist", async () => {
+      const credentials = await loggedInUserTokenAndId()
+      const updatesJson = buildPlacecast({
+        title: 'Catdog party shop',
+        s3_audio_filename: 'catdog.mp3',
+        user_id: credentials.id
+      })
       try {
-        await chai.request(HOST).put(`${PATH}/999`).send(updatesJson)
+        await chai.request(HOST).put(`${PATH}/999`).set('X-Token', credentials.token).send(updatesJson)
       } catch (error) {
         error.should.have.property('status').with.valueOf('404');
         error.response.body.content.should.eql('The requested placecast does not exist');
       }
     });
     it("does not update a placecast if placecast data is invalid", async () => {
+      const credentials = await loggedInUserTokenAndId()
       const invalidPlacecastJson = {
         title: "",
         subtitle: "",
         coordinates: [-0.187682, 51.472303],
-        s3_audio_file: ""
+        s3_audio_file: "",
+        user_id: credentials.id
       };
       try {
-        await chai.request(HOST).put(`${PATH}/1`).send(invalidPlacecastJson)
+        await chai.request(HOST).put(`${PATH}/1`).set('X-Token', credentials.token).send(invalidPlacecastJson)
       } catch (error) {
         error.should.have.property('status').with.valueOf('422');
         error.response.body.content.fields.should.deep.eql(['title','subtitle']);
