@@ -36,7 +36,7 @@ export default class PlacecastsResource extends Resource {
           this.log.warn({error: err.detail}, 'Duplicate placecast')
           respondConflict(response)('A placecast with that title already exists')
         } else if (ErrorIs.invalidPlacecast(err)) {
-          this.log.warn({error: err.detail}, 'Mandatory data missing')
+          this.log.warn({error: err.detail}, 'Mandatory data missing or data invalid')
           respondInvalid(response)({message: err.message, validationResult: err.validationResult})
         }
         else {

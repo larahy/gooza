@@ -1,6 +1,7 @@
 import Promise from 'bluebird'
 import {validatePlacecast} from './placecastValidator'
 import { ValidationError } from '../support/errors'
+import {toErrorMessage} from "../support/mappers";
 
 export default class PlacecastHandler {
   constructor ({log, allPlacecasts,}) {
@@ -12,13 +13,13 @@ export default class PlacecastHandler {
     const { placecast } = context
 
     const validationResult = validatePlacecast(placecast)
-
+ const errorMessage = toErrorMessage(validationResult)
     if (validationResult !== true) {
       this.log.warn(
-        { validationResult },
+        { errorMessage },
         'Data missing or invalid'
       )
-      return Promise.reject(new ValidationError('Data missing or invalid', validationResult))
+      return Promise.reject(new ValidationError('Data missing or invalid', errorMessage))
     }
     return this.allPlacecasts.add({placecast})
   }
@@ -27,13 +28,13 @@ export default class PlacecastHandler {
     const { placecast, id } = context
 
     const validationResult = validatePlacecast(placecast)
-
+    const errorMessage = toErrorMessage(validationResult)
     if (validationResult !== true) {
       this.log.warn(
-        { validationResult },
+        { errorMessage },
         'Data missing or invalid'
       )
-      return Promise.reject(new ValidationError('Data missing or invalid', validationResult))
+      return Promise.reject(new ValidationError('Data missing or invalid', errorMessage))
     }
     return this.allPlacecasts.fullUpdateById({ id, placecast })
   }

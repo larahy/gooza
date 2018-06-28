@@ -32,7 +32,7 @@ export const respondConflict = response => errorMessage => {
 }
 
 export const respondInvalid = response => error =>  {
-  return response.send(422, {type: 'halJson', content: {message: error.message, fields: Object.keys(error.validationResult)}})
+  return response.send(422, {type: 'halJson', content: {message: error.message, fields: error.validationResult}})
 }
 
 export const respondInternalServerError = response => () => {

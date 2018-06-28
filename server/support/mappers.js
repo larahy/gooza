@@ -14,3 +14,17 @@ export const toRecords = results => {
     .values()
     .value()
 }
+
+export const toErrorMessage = results => {
+  return chain(results)
+    .mapValues(toViolation)
+    .value()
+}
+
+export const toViolation = record => {
+  if (record[0].violation === undefined) {
+    return 'missing'
+  }
+  return record[0].violation
+}
+

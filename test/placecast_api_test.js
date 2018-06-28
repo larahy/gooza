@@ -54,7 +54,20 @@ describe("routes: placecasts", () => {
         await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(invalidPlacecastJson)
       } catch (error) {
         error.should.have.property('status').with.valueOf('422');
-        error.response.body.content.fields.should.deep.eql(['title','subtitle']);
+        error.response.body.content.fields.should.deep.eql({ title: 'missing', subtitle: 'missing' });
+        error.response.body.content.message.should.eql("Data missing or invalid");
+      }
+    });
+
+    it("returns a meaningful error response when placecast data is invalid", async () => {
+
+      const credentials = await loggedInUserTokenAndId()
+      const invalidPlacecastJson = buildPlacecast({coordinates: "brenda", title: '', user_id: credentials.id })
+      try {
+        await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(invalidPlacecastJson)
+      } catch (error) {
+        error.should.have.property('status').with.valueOf('422');
+        error.response.body.content.fields.should.deep.eql({ title: 'missing', coordinates: 'incorrect_format' });
         error.response.body.content.message.should.eql("Data missing or invalid");
       }
     });
@@ -253,7 +266,7 @@ describe("routes: placecasts", () => {
         await chai.request(HOST).put(`${PATH}/1`).set('X-Token', credentials.token).send(invalidPlacecastJson)
       } catch (error) {
         error.should.have.property('status').with.valueOf('422');
-        error.response.body.content.fields.should.deep.eql(['title','subtitle']);
+        error.response.body.content.fields.should.deep.eql({ title: 'missing', subtitle: 'missing' });
         error.response.body.content.message.should.eql("Data missing or invalid");
       }
     });

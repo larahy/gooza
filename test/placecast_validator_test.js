@@ -18,7 +18,7 @@ describe('placecastValidator', () => {
     const isValid = validatePlacecast(placecast)
 
     expect(isValid).to.not.be.true
-    expect(isValid.coordinates[0].violation).to.deep.eql({ value: 'must_be_valid_coordinates' })
+    expect(isValid.coordinates[0].violation).to.deep.eql('invalid_coordinates')
   })
 
   it('returns invalid if title is blank', () => {
@@ -66,7 +66,7 @@ describe('placecastValidator', () => {
 
     const isValid = validatePlacecast(placecast)
     expect(isValid).to.not.be.true
-    expect(isValid.coordinates[0].violation).to.deep.eql({ value: 'must_be_a_pair_of_coordinates' })
+    expect(isValid.coordinates[0].violation).to.deep.eql('incorrect_format')
   })
 
   it('returns invalid if coords are not a pair of coordinates', () => {
@@ -74,7 +74,7 @@ describe('placecastValidator', () => {
 
     const isValid = validatePlacecast(placecast)
     expect(isValid).to.not.be.true
-    expect(isValid.coordinates[0].violation).to.deep.eql({ value: 'must_be_a_pair_of_coordinates' })
+    expect(isValid.coordinates[0].violation).to.deep.eql('incorrect_format')
   })
 
 })

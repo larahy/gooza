@@ -16,11 +16,6 @@ describe('AllPlacecasts', () => {
     catdogId = await allUsers.findByEmail({email: 'catdog@gmail.com'})
   })
 
-  const anotherPlacecastJson = buildPlacecast({
-    title: "Hamleys Toy Shop",
-    coordinates: [-0.1402, 51.5128],
-    s3_audio_filename: "hamleys_toys.mp3",
-  });
 
   it('adds a placecast', async () => {
     const aPlacecastJson = buildPlacecast({user_id: catdogId.id});
