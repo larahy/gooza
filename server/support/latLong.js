@@ -1,4 +1,4 @@
-import {Validator, Violation, Assert as is} from 'validator.js'
+import {Violation} from 'validator.js'
 import validator from 'validator'
 
 export default function latLongAssert () {
