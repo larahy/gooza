@@ -23,6 +23,7 @@ describe('AllPlacecasts', () => {
     const createdPlacecast = await allPlacecasts.findOneById({id: placecast.placecast.id})
     expect(createdPlacecast.title).to.equal(aPlacecastJson.title)
     expect(createdPlacecast.user_id).to.equal(aPlacecastJson.user_id)
+    expect(createdPlacecast.s3_audio_filename).to.equal(aPlacecastJson.s3_audio_filename)
   })
 
   it('selects placecasts by title', async () => {
@@ -65,7 +66,7 @@ describe('AllPlacecasts', () => {
       title: "Twinings Tea Party",
       subtitle: " bla bla",
       coordinates: [ -0.1128, 51.5133 ],
-      s3_audio_file: "twinings_tea_party.mp3",
+      s3_audio_filename: "twinings_total_party.mp3",
       user_id: catdogId.id
     };
     const aPlacecastJson = buildPlacecast({user_id: catdogId.id});
@@ -74,6 +75,7 @@ describe('AllPlacecasts', () => {
     const updatedPlacecast = await allPlacecasts.findOneById({id: originalPlacecast.placecast.id})
     expect(updatedPlacecast.title).to.equal(updatePlacecastJson.title)
     expect(updatedPlacecast.user_id).to.equal(aPlacecastJson.user_id)
+    expect(updatedPlacecast.s3_audio_filename).to.equal(updatePlacecastJson.s3_audio_filename)
   })
 
   it('deletes a placecast', async () => {
