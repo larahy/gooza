@@ -21,11 +21,12 @@ export default class AllPlacecasts {
     return knex("placecasts").insert({
       title: placecast.title,
       subtitle: placecast.subtitle,
+      published: placecast.published,
       s3_audio_filename: placecast.s3_audio_filename,
       s3_photo_filename: placecast.s3_photo_filename,
       geom: st.geomFromText(`Point(${long} ${lat})`, 4326),
       user_id: placecast.user_id
-    }, ['id', 'title', 'subtitle', 's3_audio_filename','s3_photo_filename', st.asGeoJSON('geom'), 'user_id', 'created_at'])
+    }, ['id', 'title', 'subtitle', 's3_audio_filename','s3_photo_filename', st.asGeoJSON('geom'), 'user_id', 'created_at', 'published'])
       .then(placecast => {
         return toRecord(placecast[0])
       })
@@ -46,7 +47,7 @@ export default class AllPlacecasts {
       return this.findByProximityTo({lat, long, radius})
     }
     this.log.info('Finding all placecasts')
-    return knex.select('id', 'title', 'subtitle', 's3_audio_filename', 's3_photo_filename', st.asGeoJSON('geom'), 'user_id', 'created_at').from('placecasts')
+    return knex.select('id', 'title', 'subtitle', 's3_audio_filename', 'published', 's3_photo_filename', st.asGeoJSON('geom'), 'user_id', 'created_at').from('placecasts')
       .then(results => {
         return toRecords(results)
       })
@@ -55,7 +56,7 @@ export default class AllPlacecasts {
   findOneById ({id}) {
     this.log.info('Selecting placecast by ID')
     return knex("placecasts")
-      .select('id', 'title', 'subtitle', 's3_audio_filename', 's3_photo_filename', st.asGeoJSON('geom'), 'user_id', 'created_at')
+      .select('id', 'title', 'subtitle', 's3_audio_filename', 'published', 's3_photo_filename', st.asGeoJSON('geom'), 'user_id', 'created_at')
       .where({ id })
       .then(placecast => {
         if (!placecast.length) {
@@ -70,7 +71,7 @@ export default class AllPlacecasts {
 
     this.log.info('Selecting placecasts by title')
     return knex("placecasts")
-      .select('id', 'title', 'subtitle', 's3_audio_filename', 's3_photo_filename', st.asGeoJSON('geom'), 'user_id', 'created_at')
+      .select('id', 'title', 'subtitle', 's3_audio_filename', 'published', 's3_photo_filename', st.asGeoJSON('geom'), 'user_id', 'created_at')
       .whereRaw('LOWER(title) LIKE ?', '%'+title.toLowerCase()+'%')
       .then(results => {
         return toRecords(results)
@@ -81,7 +82,7 @@ export default class AllPlacecasts {
 
     this.log.info('Selecting placecasts by proximity')
     return knex("placecasts")
-        .select('id', 'title', 'subtitle', 's3_audio_filename', 's3_photo_filename', st.asGeoJSON('geom'), 'user_id', 'created_at')
+        .select('id', 'title', 'subtitle', 's3_audio_filename', 'published', 's3_photo_filename', st.asGeoJSON('geom'), 'user_id', 'created_at')
         .whereRaw(`ST_DWithin(geom, ST_MakePoint(${long},${lat})::geography, ${radius})`)
       .then(results => {
         return toRecords(results)
@@ -96,11 +97,12 @@ export default class AllPlacecasts {
       .update({
         title: placecast.title,
         subtitle: placecast.subtitle,
+        published: placecast.published,
         s3_audio_filename: placecast.s3_audio_filename,
         s3_photo_filename: placecast.s3_photo_filename,
         geom: st.geomFromText(`Point(${long} ${lat})`, 4326),
         user_id: placecast.user_id
-      }, ['id', 'title', 'subtitle', 's3_audio_filename','s3_photo_filename', st.asGeoJSON('geom'), 'user_id', 'created_at'])
+      }, ['id', 'title', 'subtitle', 's3_audio_filename','published','s3_photo_filename', st.asGeoJSON('geom'), 'user_id', 'created_at'])
       .where({ id })
       .then(placecast => {
         if (!placecast.length) {

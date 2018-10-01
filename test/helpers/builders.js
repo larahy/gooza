@@ -4,6 +4,7 @@ export const buildPlacecast = ({
                           coordinates = [ -0.1128, 51.5133 ],
                           s3_audio_filename = 'twinings_tea.mp3',
                           s3_photo_filename = 'twinings_tea.jpeg',
+                          published = true,
                           user_id = 1
                         } = {}) => {
   return {
@@ -12,6 +13,7 @@ export const buildPlacecast = ({
     coordinates,
     s3_audio_filename,
     s3_photo_filename,
+    published,
     user_id
   }
 }

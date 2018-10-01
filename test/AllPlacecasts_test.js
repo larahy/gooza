@@ -26,6 +26,7 @@ describe('AllPlacecasts', () => {
     expect(createdPlacecast.user_id).to.equal(aPlacecastJson.user_id)
     expect(createdPlacecast.s3_audio_filename).to.equal(aPlacecastJson.s3_audio_filename)
     expect(createdPlacecast.s3_photo_filename).to.equal(aPlacecastJson.s3_photo_filename)
+    expect(createdPlacecast.published).to.equal(aPlacecastJson.published)
     expect(moment(createdPlacecast.created_at).isValid()).to.eql(true)
   })
 
