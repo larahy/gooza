@@ -28,6 +28,7 @@
     "knex-postgis": "^0.6.0",
     "mapbox": "^1.0.0-beta10",
     "mapbox-gl": "^0.45.0",
+    "moment": "^2.22.2",
     "passport": "^0.4.0",
     "passport-accesstoken": "^0.1.0",
     "passport-local": "^1.0.0",
