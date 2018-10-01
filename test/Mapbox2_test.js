@@ -18,7 +18,7 @@ describe('Mapbox', () => {
 
     const coords = await mapbox.geocodeAddress('St Clement Danes Church, Strand, London, UK')
     expect(coords).to.be.an('array')
-    expect(coords).deep.equal([ -0.113898, 51.513107 ])
+    expect(coords).deep.equal([ -0.114064336, 51.513145 ])
   })
 
 })

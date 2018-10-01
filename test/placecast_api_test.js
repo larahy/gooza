@@ -17,6 +17,7 @@ const parseBody = response => halson(response.body.content)
 const anotherPlacecastJson = buildPlacecast({
     title: 'Potteries and Piggeries',
     s3_audio_filename: 'potteries_and_piggeries.mp3',
+    s3_photo_filename: 'potteries_and_piggeries.jpeg',
     coordinates: [-0.2114, 51.5104],
   })
 
@@ -88,7 +89,7 @@ describe("routes: placecasts", () => {
     it('returns a list of all placecasts', async () => {
       const credentials = await loggedInUserTokenAndId()
       const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
-      const anotherPlacecastJson = buildPlacecast({user_id: credentials.id, title: 'Potteries and Piggeries', s3_audio_filename: 'potteries_and_piggeries.mp3'})
+      const anotherPlacecastJson = buildPlacecast({user_id: credentials.id, title: 'Potteries and Piggeries', s3_audio_filename: 'potteries_and_piggeries.mp3', s3_photo_filename: 'potteries_and_piggeries.jpeg' })
 
 
       const aPlacecast = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
@@ -104,6 +105,7 @@ describe("routes: placecasts", () => {
       firstPlacecast.title.should.equal(aPlacecast.title)
       firstPlacecast.subtitle.should.equal(aPlacecast.subtitle)
       firstPlacecast.s3_audio_filename.should.equal(aPlacecast.s3_audio_filename)
+      firstPlacecast.s3_photo_filename.should.equal(aPlacecast.s3_photo_filename)
       firstPlacecast.geom.should.equal(aPlacecast.geom)
       firstPlacecast._links.should.deep.equal(aPlacecast._links)
     })
@@ -111,7 +113,7 @@ describe("routes: placecasts", () => {
 
       const credentials = await loggedInUserTokenAndId()
       const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
-      const anotherPlacecastJson = buildPlacecast({user_id: credentials.id, title: 'Hamleys Toy Shop', s3_audio_filename: 'hamleys_toys.mp3'})
+      const anotherPlacecastJson = buildPlacecast({user_id: credentials.id, title: 'Hamleys Toy Shop', s3_audio_filename: 'hamleys_toys.mp3', s3_photo_filename: 'hamleys_toys.jpeg'})
 
 
       const Twinings = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
@@ -144,6 +146,7 @@ describe("routes: placecasts", () => {
         user_id: credentials.id,
         title: 'St Clement Danes',
         s3_audio_filename: 'st_clement_danes.mp3',
+        s3_photo_filename: 'st_clement_danes.jpeg',
         coordinates: [-0.113898, 51.513107 ]})
 
 
@@ -185,6 +188,7 @@ describe("routes: placecasts", () => {
         user_id: credentials.id,
         title: 'St Clement Danes',
         s3_audio_filename: 'st_clement_danes.mp3',
+        s3_photo_filename: 'st_clement_danes.jpeg',
         coordinates: [-0.113898, 51.513107 ]})
       const Twinings = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
       const StClementDanes = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(StClementDanesJson).then(parseBody)
@@ -210,7 +214,7 @@ describe("routes: placecasts", () => {
       const retrievedPlacecast = await chai.request(HOST).get(`${PATH}/${aPlacecast.id}`);
       retrievedPlacecast.should.have.property('status').with.valueOf('200');
       retrievedPlacecast.headers.should.have.property('content-type').with.valueOf('application/json');
-      retrievedPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle");
+      retrievedPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "s3_photo_filename", "subtitle");
     });
     it("should return an error when the requested placecast does not exist", async () => {
       try {
@@ -229,6 +233,7 @@ describe("routes: placecasts", () => {
       const updatesJson = buildPlacecast({
         title: 'Catdog party shop',
         s3_audio_filename: 'catdog.mp3',
+        s3_photo_filename: 'catdog.jpeg',
         user_id: credentials.id
       })
       const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
@@ -238,6 +243,7 @@ describe("routes: placecasts", () => {
       updatedPlacecastResponse.status.should.eql(200);
       updatedPlacecast.title.should.equal('Catdog party shop')
       updatedPlacecast.s3_audio_filename.should.equal('catdog.mp3')
+      updatedPlacecast.s3_photo_filename.should.equal('catdog.jpeg')
     });
     it("should return an error when the  placecast to update does not exist", async () => {
       const credentials = await loggedInUserTokenAndId()
@@ -260,6 +266,7 @@ describe("routes: placecasts", () => {
         subtitle: "",
         coordinates: [-0.187682, 51.472303],
         s3_audio_file: "",
+        s3_photo_file: "",
         user_id: credentials.id
       };
       try {

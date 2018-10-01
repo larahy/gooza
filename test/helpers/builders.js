@@ -3,6 +3,7 @@ export const buildPlacecast = ({
                           subtitle = 'The Twinings logo, a simple, gold sign bearing the company name, has remained unchanged since 1787.',
                           coordinates = [ -0.1128, 51.5133 ],
                           s3_audio_filename = 'twinings_tea.mp3',
+                          s3_photo_filename = 'twinings_tea.jpeg',
                           user_id = 1
                         } = {}) => {
   return {
@@ -10,6 +11,7 @@ export const buildPlacecast = ({
     subtitle,
     coordinates,
     s3_audio_filename,
+    s3_photo_filename,
     user_id
   }
 }

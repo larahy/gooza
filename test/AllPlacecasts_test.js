@@ -24,6 +24,7 @@ describe('AllPlacecasts', () => {
     expect(createdPlacecast.title).to.equal(aPlacecastJson.title)
     expect(createdPlacecast.user_id).to.equal(aPlacecastJson.user_id)
     expect(createdPlacecast.s3_audio_filename).to.equal(aPlacecastJson.s3_audio_filename)
+    expect(createdPlacecast.s3_photo_filename).to.equal(aPlacecastJson.s3_photo_filename)
   })
 
   it('selects placecasts by title', async () => {
@@ -31,6 +32,7 @@ describe('AllPlacecasts', () => {
       title: "Hamleys Toy Shop",
       coordinates: [-0.1402, 51.5128],
       s3_audio_filename: "hamleys_toys.mp3",
+      s3_photo_filename: "hamleys_toys.jpeg",
       user_id: catdogId.id
     });
 
@@ -49,6 +51,7 @@ describe('AllPlacecasts', () => {
       title: "Hamleys Toy Shop",
       coordinates: [-0.1402, 51.5128],
       s3_audio_filename: "hamleys_toys.mp3",
+      s3_photo_filename: "hamleys_toys.jpeg",
       user_id: catdogId.id
     });
 
@@ -67,6 +70,7 @@ describe('AllPlacecasts', () => {
       subtitle: " bla bla",
       coordinates: [ -0.1128, 51.5133 ],
       s3_audio_filename: "twinings_total_party.mp3",
+      s3_photo_filename: "twinings_total_party.jpeg",
       user_id: catdogId.id
     };
     const aPlacecastJson = buildPlacecast({user_id: catdogId.id});
@@ -76,6 +80,7 @@ describe('AllPlacecasts', () => {
     expect(updatedPlacecast.title).to.equal(updatePlacecastJson.title)
     expect(updatedPlacecast.user_id).to.equal(aPlacecastJson.user_id)
     expect(updatedPlacecast.s3_audio_filename).to.equal(updatePlacecastJson.s3_audio_filename)
+    expect(updatedPlacecast.s3_photo_filename).to.equal(updatePlacecastJson.s3_photo_filename)
   })
 
   it('deletes a placecast', async () => {
