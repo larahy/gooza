@@ -19,14 +19,17 @@ describe('AllPlacecasts', () => {
 
 
   it('adds a placecast', async () => {
-    const aPlacecastJson = buildPlacecast({user_id: catdogId.id});
+    const aPlacecastJson = buildPlacecast({user_id: catdogId.id, pitch: 23.56, heading: 90.12});
     const placecast = await allPlacecasts.add({placecast: aPlacecastJson})
     const createdPlacecast = await allPlacecasts.findOneById({id: placecast.placecast.id})
-    expect(createdPlacecast.title).to.equal(aPlacecastJson.title)
+      expect(createdPlacecast.title).to.equal(aPlacecastJson.title)
     expect(createdPlacecast.user_id).to.equal(aPlacecastJson.user_id)
     expect(createdPlacecast.s3_audio_filename).to.equal(aPlacecastJson.s3_audio_filename)
     expect(createdPlacecast.s3_photo_filename).to.equal(aPlacecastJson.s3_photo_filename)
     expect(createdPlacecast.published).to.equal(aPlacecastJson.published)
+    expect(createdPlacecast.pitch).to.equal(aPlacecastJson.pitch)
+    expect(createdPlacecast.heading).to.equal(aPlacecastJson.heading)
+    expect(createdPlacecast.zoom).to.equal(aPlacecastJson.zoom)
     expect(moment(createdPlacecast.created_at).isValid()).to.eql(true)
   })
 

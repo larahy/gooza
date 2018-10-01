@@ -5,7 +5,10 @@ export const buildPlacecast = ({
                           s3_audio_filename = 'twinings_tea.mp3',
                           s3_photo_filename = 'twinings_tea.jpeg',
                           published = true,
-                          user_id = 1
+                          user_id = 1,
+                          heading = 90.00,
+                          pitch = 0.00,
+                          zoom = 0
                         } = {}) => {
   return {
     title,
@@ -14,7 +17,10 @@ export const buildPlacecast = ({
     s3_audio_filename,
     s3_photo_filename,
     published,
-    user_id
+    user_id,
+    heading,
+    pitch,
+    zoom
   }
 }
 
