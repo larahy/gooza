@@ -22,7 +22,7 @@ export default class SessionResource extends Resource {
 
   post (request, response, next) {
     const userSession = request.user
-    const userId = userSession.id
+    const userId = userSession.user.id
     const sessionData = { userId, token: userSession.token }
     this.log.info('User logging in', {userId})
     return this.sessionJson
