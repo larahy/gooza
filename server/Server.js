@@ -6,7 +6,7 @@ const corsMiddleware = require('restify-cors-middleware')
 const cors = corsMiddleware({
   preflightMaxAge: 5, //Optional
   origins: ['*'],
-  allowHeaders: ['API-Token'],
+  allowHeaders: ['X-Token'],
   exposeHeaders: ['API-Token-Expiry']
 })
 import Tokens from './authentication/Tokens'

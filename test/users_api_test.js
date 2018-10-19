@@ -70,7 +70,6 @@ describe("routes: users", () => {
   describe(`GET ${PATH}/:id`, () => {
     it("should return a single user", async () => {
       const credentials = await loggedInUserTokenAndId()
-      console.log('creds', credentials)
       const retrievedUserDetails = await chai.request(HOST).get(`${PATH}/${credentials.id}`).set('X-Token', credentials.token);
       retrievedUserDetails.should.have.property('status').with.valueOf('200');
       retrievedUserDetails.headers.should.have.property('content-type').with.valueOf('application/json');
