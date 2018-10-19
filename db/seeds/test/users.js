@@ -17,7 +17,8 @@ exports.seed = function (knex, Promise) {
         first_name: "Cat",
         last_name: "Dog",
         email: "catdog@gmail.com",
-        password: hashedPassword
+        password: hashedPassword,
+        bio: 'Original Catdog'
       });
     })
 };

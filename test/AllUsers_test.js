@@ -15,18 +15,23 @@ describe('AllUsers', () => {
     first_name: "Brenda",
     last_name: "Chan",
     email: "brenda@example.com",
-    password: "brenda"
+    password: "brenda",
+    bio: "Original catdog"
   };
   const anotherUserJson = {
     first_name: "Norman",
     last_name: "Chan",
     email: "norman@example.com",
-    password: "norman"
+    password: "norman",
+    bio: "Original catdog"
   };
 
   it('adds a user', async () => {
     const user = await allUsers.add({user: aUserJson})
     expect(user.user.first_name).to.equal(aUserJson.first_name)
+    expect(user.user.last_name).to.equal(aUserJson.last_name)
+    expect(user.user.email).to.equal(aUserJson.email)
+    expect(user.user.bio).to.equal(aUserJson.bio)
   })
 
   it('retrieves a user by email', async () => {
