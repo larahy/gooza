@@ -41,29 +41,14 @@ describe("routes: users", () => {
   })
 
   describe(`GET ${PATH}`, () => {
-    it('returns a list of all users if request user is authenticated with a valid token', async () => {
+    it('returns a list of all users', async () => {
 
-      const aUser = await chai.request(HOST).post(`${PATH}`).send(brenda).then(parseBody)
-      const loggedInUserResponse = await chai.request(HOST).post(`/api/v1/session`).send({
-        email: brenda.email,
-        password: brenda.password
-      })
-      const loggedInUser = parseBody(loggedInUserResponse)
+      const allUsersResponse = await chai.request(HOST).get(`${PATH}`)
 
-      const allUsersResponse = await chai.request(HOST).get(`${PATH}`).set('X-Token', loggedInUser.token)
       allUsersResponse.status.should.eql(200);
       allUsersResponse.type.should.eql("application/json");
       const allUsers = parseBody(allUsersResponse).getEmbeds('users')
-      allUsers.should.have.length(2)
-    })
-    it('does not return a list of all users if request user is not authenticated', async () => {
-      try {
-        await chai.request(HOST).get(`${PATH}`).set('X-Token', 'bla bla bla')
-      }
-      catch (error) {
-        error.should.have.property('status').with.valueOf('500');
-      }
-
+      allUsers.should.have.length(1)
     })
   })
 

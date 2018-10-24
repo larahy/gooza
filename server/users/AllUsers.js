@@ -64,7 +64,7 @@ export default class AllUsers {
 
   findAll () {
     this.log.info('Finding all users')
-    return knex.select('*').from('users')
+    return knex.select('id', 'first_name', 'last_name', 'bio').from('users')
       .then(results => {
         return toRecords(results)
       })

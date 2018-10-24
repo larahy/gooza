@@ -13,9 +13,6 @@ export default class UsersResource extends Resource {
     this.allUsers = allUsers
     this.userJson = userJson
     this.usersJson = usersJson
-    this.authentication = {
-      'get': 'token'
-    }
 
   }
 
