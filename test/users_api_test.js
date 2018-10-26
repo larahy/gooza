@@ -36,7 +36,7 @@ describe("routes: users", () => {
       newUserResponse.status.should.eql(201);
       newUserResponse.should.have.header("location");
       newUserResponse.type.should.eql("application/json");
-      newUserResponse.body.content.should.include.keys("id", "first_name", "last_name", "email", "_links");
+      newUserResponse.body.content.should.include.keys("id", "first_name", "last_name", "email", "active", "_links");
     });
   })
 
@@ -58,7 +58,7 @@ describe("routes: users", () => {
       const retrievedUserDetails = await chai.request(HOST).get(`${PATH}/${credentials.id}`).set('X-Token', credentials.token);
       retrievedUserDetails.should.have.property('status').with.valueOf('200');
       retrievedUserDetails.headers.should.have.property('content-type').with.valueOf('application/json');
-      retrievedUserDetails.body.content.should.include.keys("id", "email", "first_name", "last_name");
+      retrievedUserDetails.body.content.should.include.keys("id", "email", "first_name", "last_name", "active");
     });
     it("should return an error when the requested user does not match the user in session", async () => {
       const credentials = await loggedInUserTokenAndId()

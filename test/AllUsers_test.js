@@ -16,7 +16,8 @@ describe('AllUsers', () => {
     last_name: "Chan",
     email: "brenda@example.com",
     password: "brenda",
-    bio: "Original catdog"
+    bio: "Original catdog",
+    active: true
   };
   const anotherUserJson = {
     first_name: "Norman",
@@ -32,6 +33,7 @@ describe('AllUsers', () => {
     expect(user.user.last_name).to.equal(aUserJson.last_name)
     expect(user.user.email).to.equal(aUserJson.email)
     expect(user.user.bio).to.equal(aUserJson.bio)
+    expect(user.user.active).to.equal(aUserJson.active)
   })
 
   it('retrieves a user by email', async () => {

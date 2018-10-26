@@ -22,8 +22,9 @@ export default class AllUsers {
           last_name: user.last_name,
           email: user.email,
           bio: user.bio,
+          active: user.active,
           password: JSON.stringify(hashedPassword)
-        }, ['id', 'first_name', 'last_name', 'email', 'bio'])
+        }, ['id', 'first_name', 'last_name', 'email', 'bio', 'active'])
       })
       .then(user => {
         return toRecord(user[0])
@@ -51,7 +52,7 @@ export default class AllUsers {
   findById({id}) {
     this.log.info('Retrieving user by id: ', id)
     return knex("users")
-      .select('id', 'first_name', 'last_name', 'email', 'bio')
+      .select('id', 'first_name', 'last_name', 'email', 'bio', 'active')
       .where({id})
       .then(user => {
         if (!user.length) {
@@ -64,7 +65,7 @@ export default class AllUsers {
 
   findAll () {
     this.log.info('Finding all users')
-    return knex.select('id', 'first_name', 'last_name', 'bio').from('users')
+    return knex.select('id', 'first_name', 'last_name', 'bio', 'active').from('users')
       .then(results => {
         return toRecords(results)
       })
