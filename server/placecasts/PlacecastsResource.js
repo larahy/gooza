@@ -15,19 +15,19 @@ export default class PlacecastsResource extends Resource {
     this.placecastJson = placecastJson
     this.placecastsJson = placecastsJson
     this.findPlacecasts = findPlacecasts
-    // this.authentication = {
-    //   'post': 'token'
-    // }
+    this.authentication = {
+      'post': 'token'
+    }
   }
 
   post(request, response, next) {
 
-    // const sessionUser = request.user
+    const sessionUser = request.user
     const userId = request.body.user_id
     this.log.info('Creating placecast for ', { userId: userId })
 
 
-    // if (userId === sessionUser.id) {
+    if (userId === sessionUser.id) {
     return this.placecastHandler.create({placecast: request.body})
       .then(({placecast}) => this.renderPlacecastAsJson.bind(this)(placecast))
       .then(respondCreated(response))
@@ -44,11 +44,11 @@ export default class PlacecastsResource extends Resource {
         }
       })
       .finally(next)
-    // } else {
-    //   return Promise.try(respondForbidden(response))
-    //     .catch(warnOfError('Unauthorised request to create new placecast for user', this.log))
-    //     .finally(next)
-    // }
+    } else {
+      return Promise.try(respondForbidden(response))
+        .catch(warnOfError('Unauthorised request to create new placecast for user', this.log))
+        .finally(next)
+    }
   }
 
   get(request, response, next) {
