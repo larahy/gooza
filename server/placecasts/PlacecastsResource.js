@@ -27,7 +27,7 @@ export default class PlacecastsResource extends Resource {
     this.log.info('Creating placecast for ', { userId: userId })
 
 
-    if (userId === sessionUser.id) {
+    if (userId === sessionUser.id && sessionUser.active === true) {
     return this.placecastHandler.create({placecast: request.body})
       .then(({placecast}) => this.renderPlacecastAsJson.bind(this)(placecast))
       .then(respondCreated(response))

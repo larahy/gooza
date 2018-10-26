@@ -24,17 +24,18 @@ export const buildPlacecast = ({
   }
 }
 
-
 export const buildUser = ({
-                     first_name = 'Brenda',
-                     last_name = 'Chan',
-                     email = 'brenda@example.com',
-                     password = 'brenda'
-                   } = {}) => {
+                            first_name = 'Brenda',
+                            last_name = 'Chan',
+                            email = 'brenda@example.com',
+                            password = 'brenda',
+                            active = true
+                          } = {}) => {
   return {
     first_name,
     last_name,
     email,
-    password
+    password,
+    active
   }
 }

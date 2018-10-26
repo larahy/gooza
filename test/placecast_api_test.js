@@ -35,6 +35,17 @@ describe("routes: placecasts", () => {
       newPlacecast.type.should.eql("application/json");
       newPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle", "user_id");
     });
+    it("should add a new placecast if the session user is the same as the placecast user and said user's account is active", async () => {
+      //
+      const credentials = await loggedInUserTokenAndId()
+      const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
+
+      const newPlacecast = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson);
+      newPlacecast.status.should.eql(201);
+      newPlacecast.should.have.header("location");
+      newPlacecast.type.should.eql("application/json");
+      newPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "subtitle", "user_id");
+    });
     it("does not add a new placecast if one already exists with that title", async () => {
       const credentials = await loggedInUserTokenAndId()
       const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
