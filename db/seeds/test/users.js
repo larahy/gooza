@@ -18,7 +18,8 @@ exports.seed = function (knex, Promise) {
         last_name: "Dog",
         email: "catdog@gmail.com",
         password: hashedPassword,
-        bio: 'Original Catdog'
+        bio: 'Original Catdog',
+        active: true
       });
     })
 };

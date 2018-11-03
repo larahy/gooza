@@ -15,7 +15,8 @@ export default class PlacecastResource extends Resource {
     this.placecastJson = placecastJson
     this.placecastHandler = placecastHandler
     this.authentication = {
-      'put': 'token'
+      'put': 'token',
+      'del': 'token'
     }
   }
 
@@ -69,6 +70,8 @@ export default class PlacecastResource extends Resource {
   }
 
   del (request, response, next) {
+    //TODO CHECK PLACECAST USER IS THE SAME AS TOKEN USER //
+
     const id = request.params.placecastId
     this.log.info('deleting placecast by id: ', id)
 
