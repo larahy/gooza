@@ -14,6 +14,12 @@ export const respondNotFound = response => errorMessage => {
   return response.send(404, {type: 'halJson', content: errorMessage})
 }
 
+export const respondNoContent = response => resource => {
+  response.status(204)
+  response.header('location', resource.location)
+
+  return response.send(resource)}
+
 export const respondBadRequest = (response, code, message = null) => () => {
   response.status(400)
 

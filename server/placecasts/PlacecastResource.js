@@ -1,5 +1,11 @@
 import Resource from '../framework/Resource'
-import {respondOk, respondNotFound, respondInternalServerError, respondInvalid} from "../support/responses";
+import {
+  respondOk,
+  respondNotFound,
+  respondInternalServerError,
+  respondInvalid,
+  respondNoContent
+} from "../support/responses";
 import {
   ErrorIs,
   warnOfError
@@ -77,7 +83,7 @@ export default class PlacecastResource extends Resource {
 
     return this.allPlacecasts.deleteById({id})
       .then(() => {
-        return respondOk(response)({})
+        return respondNoContent(response)({})
       })
       .catch(err => {
         if (ErrorIs.notFound(err)) {

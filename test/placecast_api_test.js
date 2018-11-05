@@ -54,7 +54,7 @@ describe("routes: placecasts", () => {
       try {
         await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson);
       } catch (error) {
-        error.should.have.property('status').with.valueOf('409');
+        error.status.should.eql(409);
         error.response.body.content.should.eql(`A placecast with that title already exists`);
       }
     });
@@ -65,7 +65,7 @@ describe("routes: placecasts", () => {
       try {
         await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(invalidPlacecastJson)
       } catch (error) {
-        error.should.have.property('status').with.valueOf('422');
+        error.status.should.eql(422);
         error.response.body.content.fields.should.deep.eql({ title: 'missing', subtitle: 'missing' });
         error.response.body.content.message.should.eql("Data missing or invalid");
       }
@@ -78,7 +78,7 @@ describe("routes: placecasts", () => {
       try {
         await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(invalidPlacecastJson)
       } catch (error) {
-        error.should.have.property('status').with.valueOf('422');
+        error.status.should.eql(422);
         error.response.body.content.fields.should.deep.eql({ title: 'missing', coordinates: 'incorrect_format' });
         error.response.body.content.message.should.eql("Data missing or invalid");
       }
@@ -90,7 +90,7 @@ describe("routes: placecasts", () => {
       try {
         await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson);
       } catch (error) {
-        error.should.have.property('status').with.valueOf('403');
+        error.status.should.eql(403);
         error.response.body.content.should.eql('Unauthorised Request');
       }
     })
@@ -223,7 +223,7 @@ describe("routes: placecasts", () => {
       const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
       const aPlacecast = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
       const retrievedPlacecast = await chai.request(HOST).get(`${PATH}/${aPlacecast.id}`);
-      retrievedPlacecast.should.have.property('status').with.valueOf('200');
+      retrievedPlacecast.status.should.eql(200);
       retrievedPlacecast.headers.should.have.property('content-type').with.valueOf('application/json');
       retrievedPlacecast.body.content.should.include.keys("id", "title", "geom", "s3_audio_filename", "s3_photo_filename", "subtitle");
     });
@@ -231,7 +231,7 @@ describe("routes: placecasts", () => {
       try {
         await chai.request(HOST).get(`${PATH}/999`)
       } catch (error) {
-        error.should.have.property('status').with.valueOf('404');
+        error.status.should.eql(404);
         error.response.body.content.should.eql('The requested placecast does not exist');
       }
     });
@@ -266,7 +266,7 @@ describe("routes: placecasts", () => {
       try {
         await chai.request(HOST).put(`${PATH}/999`).set('X-Token', credentials.token).send(updatesJson)
       } catch (error) {
-        error.should.have.property('status').with.valueOf('404');
+        error.status.should.eql(404);
         error.response.body.content.should.eql('The requested placecast does not exist');
       }
     });
@@ -283,7 +283,7 @@ describe("routes: placecasts", () => {
       try {
         await chai.request(HOST).put(`${PATH}/1`).set('X-Token', credentials.token).send(invalidPlacecastJson)
       } catch (error) {
-        error.should.have.property('status').with.valueOf('422');
+        error.status.should.eql(422);
         error.response.body.content.fields.should.deep.eql({ title: 'missing', subtitle: 'missing' });
         error.response.body.content.message.should.eql("Data missing or invalid");
       }
@@ -297,14 +297,14 @@ describe("routes: placecasts", () => {
       const TwiningsTeaShopJson = buildPlacecast({user_id: credentials.id })
       const Twinings = await chai.request(HOST).post(`${PATH}`).set('X-Token', credentials.token).send(TwiningsTeaShopJson).then(parseBody)
       const deleteResponse = await chai.request(HOST).del(`${PATH}/${Twinings.id}`).set('X-Token', credentials.token)
-      deleteResponse.should.have.property('status').with.valueOf('200');
+      deleteResponse.status.should.eql(204);
       deleteResponse.body.should.eql({});
     });
     it.skip("should return an error when the requested placecast does not exist", async () => {
       try {
         await chai.request(HOST).del(`${PATH}/999`).set('X-Token', credentials.token);
       } catch (error) {
-        error.should.have.property('status').with.valueOf('404');
+        error.status.should.eql(404);
         error.response.body.content.should.eql('The requested placecast does not exist');
       }
     });
