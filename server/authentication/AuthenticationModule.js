@@ -29,7 +29,7 @@ export default class AuthenticationModule extends Module {
         session: false
       },
       (username, password, done) => {
-        log.debug({username}, 'Attempting authentication')
+        log.debug({username}, 'Attempting local authentication')
         return allUsers.findByEmail({ email: username })
           .then(user => isEmpty(user)
             ? [user, false]
@@ -40,7 +40,7 @@ export default class AuthenticationModule extends Module {
               return this.tokens.sign({id: user.id})
                 .then(token => done(null, {user, token}))
             } else {
-              log.warn('Invalid password supplied for', {accountId: account.id})
+              log.warn('Invalid password supplied for', {userId: user.id})
               return done(null, false)
             }
           })
